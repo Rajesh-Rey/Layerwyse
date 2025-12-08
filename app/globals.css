@@ -1,7 +1,4 @@
 @import "tailwindcss";
-/*
-  ---break---
-*/
 @import "tw-animate-css";
 
 /* Dark variant that uses `.dark` on a parent */
@@ -67,7 +64,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--color-border, currentColor);
   }
 }
 
