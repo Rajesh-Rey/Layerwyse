@@ -1,4 +1,10 @@
-import { Breakdown, CalculatorFormValues, CategoryPrices } from "./types";
+import {
+  Breakdown,
+  CalculatorFormValues,
+  CategoryPrices,
+  CogsBreakdown,
+  FixedCostsBreakdown,
+} from "./types";
 
 export function computeTotal(v: CalculatorFormValues): Breakdown {
   let extraSum = 0;
@@ -8,41 +14,67 @@ export function computeTotal(v: CalculatorFormValues): Breakdown {
 
   const c = categoryPricesKWD?.[v.category];
 
-  let laborCogs = 0;
-  let laborCost = 0;
+  let paintingLaborCost = 0;
+  let sandingLaborCost = 0;
+  let printingLaborCost = 0;
+  let supportLaborCost = 0;
+  let modelingLaborCost = 0;
+
   if (c != null) {
     const paintingMult = c.painting.levels[v.paintingDifficulty];
     const paintingPrice = c.painting.basePrice;
-    const paintingLaborCost = paintingPrice * paintingMult;
+    paintingLaborCost = paintingPrice * paintingMult;
 
     const sandingMult = c.sanding.levels[v.sandingDifficulty];
     const sandingPrice = c.sanding.basePrice;
-    const sandingLaborCost = sandingPrice * sandingMult;
+    sandingLaborCost = sandingPrice * sandingMult;
 
     const supportMult = c.support.levels[v.supportDifficulty];
     const supportPrice = c.support.basePrice;
-    const supportLaborCost = supportPrice * supportMult;
+    supportLaborCost = supportPrice * supportMult;
 
-    const printingLaborCost = v.removalTime * v.hourlyLaborRate;
+    printingLaborCost = v.removalTime * v.hourlyLaborRate;
 
     const modelingMult = c.modeling.levels[v.modelingDifficulty];
     const modelingPrice = c.modeling.basePrice;
-    const modelingLaborCost = modelingPrice * modelingMult;
-
-    laborCogs = paintingLaborCost + sandingLaborCost + printingLaborCost;
-    laborCost = supportLaborCost + modelingLaborCost;
+    modelingLaborCost = modelingPrice * modelingMult;
   }
 
-  const materials = v.materialCost * v.volume + extraSum;
-  let cogs = materials + laborCogs;
+  const materialCost = v.materialCost * v.volume;
+  const cogsTotal =
+    materialCost +
+    extraSum +
+    paintingLaborCost +
+    sandingLaborCost +
+    printingLaborCost;
+
+  const cogs: CogsBreakdown = {
+    material: materialCost,
+    extraMaterials: extraSum,
+    painting: paintingLaborCost,
+    sanding: sandingLaborCost,
+    printingLabor: printingLaborCost,
+    total: cogsTotal,
+  };
+
+  const rent = 0; // Placeholder for future rent cost
+  const fixedCostsTotal = supportLaborCost + modelingLaborCost + rent;
+
+  const fixedCosts: FixedCostsBreakdown = {
+    support: supportLaborCost,
+    modeling: modelingLaborCost,
+    rent: rent,
+    total: fixedCostsTotal,
+  };
 
   // we need to show to the user that the more they print the less this will cost them
-  const total = cogs + laborCost / v.quantity;
+  const total = cogsTotal + fixedCostsTotal / v.quantity;
 
   const suggestedPrice = total + (total * v.margin) / 100;
 
   return {
     cogs,
+    fixedCosts,
     extraMaterials: extraSum,
     total,
     suggestedPrice,

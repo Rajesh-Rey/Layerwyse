@@ -119,7 +119,7 @@ http://localhost:3000
 
 ```
 BASE_URL=https://your-domain.com
-POSTGRES_URL=<your-production-database-url>
+DATABASE_URL=<your-production-database-url>
 AUTH_SECRET=<32-byte-random-string>
 ```
 

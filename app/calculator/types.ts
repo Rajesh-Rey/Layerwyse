@@ -1,7 +1,24 @@
 import { nullable, z } from "zod";
 
+export type CogsBreakdown = {
+  material: number;
+  extraMaterials: number;
+  painting: number;
+  sanding: number;
+  printingLabor: number;
+  total: number;
+};
+
+export type FixedCostsBreakdown = {
+  support: number;
+  modeling: number;
+  rent: number;
+  total: number;
+};
+
 export type Breakdown = {
-  cogs: number;
+  cogs: CogsBreakdown;
+  fixedCosts: FixedCostsBreakdown;
   extraMaterials: number;
   total: number;
   price: number;
