@@ -31,19 +31,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 import { Label } from "@radix-ui/react-select";
 import { CANCELLED } from "node:dns/promises";
+import { AccordionHeader } from "@radix-ui/react-accordion";
+import { useEffect } from "react";
 
 const currency = "KWD";
 
 const serviceOptions = [
-  { value: "3d-printing", label: "3D Printing" },
+  { value: "printing", label: "3D Printing" },
   { value: "modeling", label: "3D Modeling" },
   { value: "painting", label: "Painting" },
   { value: "sanding", label: "Sanding" },
-  { value: "assembly", label: "Assembly" },
-  { value: "finishing", label: "Finishing" },
 ];
 
 const categoryOptions = [
@@ -92,10 +93,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
   const form = useForm({
     defaultValues: {
       name: "",
-      services: [] as string[],
+      services: ["printing", "modeling", "painting", "sanding"] as string[],
       category: "",
       customer: "",
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       quantity: 1,
       margin: 30,
       price: 0 as any,
@@ -129,7 +130,8 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       onChangeDebounceMs: 80, // 500ms debounce
       onChange: ({ formApi }) => {
         if (onChange) {
-          onChange(formApi.state.values);
+          const value = formApi.state.values;
+          onChange(value);
         }
       },
     },
@@ -288,14 +290,20 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     return (
                       <Field data-invalid={isInvalid}>
                         <FieldLabel htmlFor={field.name}>Date</FieldLabel>
-                        <Input
+                        <DatePicker
                           id={field.name}
-                          name={field.name}
-                          type="date"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
+                          editable={false}
+                          value={
+                            field.state.value
+                              ? new Date(field.state.value)
+                              : undefined
+                          }
+                          onChange={(date) => {
+                            field.handleChange(
+                              date ? date.toISOString().split("T")[0] : "",
+                            );
+                          }}
+                          placeholder="Select project date"
                         />
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
@@ -304,235 +312,200 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     );
                   }}
                 />
-              </FieldGroup>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Pricing Section */}
-          <AccordionItem value="pricing">
-            <AccordionTrigger className="text-lg font-semibold">
-              Pricing
-            </AccordionTrigger>
-            <AccordionContent>
-              <FieldGroup className="pt-2">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <form.Field
-                    name="quantity"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Quantity</FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            min={1}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) =>
-                              field.handleChange(parseInt(e.target.value))
-                            }
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-
-                  <form.Field
-                    name="margin"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Margin (%)
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) =>
-                              field.handleChange(parseFloat(e.target.value))
-                            }
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-
-                  <form.Field
-                    name="price"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Price ({currency})
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-6">
-                  <form.Field
-                    name="packaging"
-                    children={(field) => (
-                      <Field orientation="horizontal">
-                        <Checkbox
-                          id={field.name}
-                          checked={field.state.value}
-                          onCheckedChange={(checked) =>
-                            field.handleChange(checked === true)
-                          }
-                        />
-                        <FieldLabel htmlFor={field.name}>
-                          Include Packaging
-                        </FieldLabel>
-                      </Field>
-                    )}
-                  />
-
-                  <form.Field
-                    name="delivery"
-                    children={(field) => (
-                      <Field orientation="horizontal">
-                        <Checkbox
-                          id={field.name}
-                          checked={field.state.value}
-                          onCheckedChange={(checked) =>
-                            field.handleChange(checked === true)
-                          }
-                        />
-                        <FieldLabel htmlFor={field.name}>
-                          Include Delivery
-                        </FieldLabel>
-                      </Field>
-                    )}
-                  />
-                </div>
               </FieldGroup>
             </AccordionContent>
           </AccordionItem>
 
           {/* Printing Section */}
-          <AccordionItem value="printing">
-            <AccordionTrigger className="text-lg font-semibold">
-              Printing Details
-            </AccordionTrigger>
-            <AccordionContent>
-              <FieldGroup className="pt-2">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <form.Field
-                    name="material"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Material</FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select material" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {materialOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
+          {form.getFieldValue("services").includes("printing") && (
+            <AccordionItem value="printing">
+              <AccordionTrigger className="text-lg font-semibold">
+                Printing Details
+              </AccordionTrigger>
+              <AccordionContent>
+                <FieldGroup className="pt-2">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <form.Field
+                      name="material"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Material
+                            </FieldLabel>
+                            <Select
+                              value={field.state.value}
+                              onValueChange={(value) =>
+                                field.handleChange(value)
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select material" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {materialOptions.map((option) => (
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+
+                    <form.Field
+                      name="printer"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Printer
+                            </FieldLabel>
+                            <Select
+                              value={field.state.value}
+                              onValueChange={(value) =>
+                                field.handleChange(value)
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select printer" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {printerOptions.map((option) => (
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <form.Field
+                      name="materialCost"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Material Cost ({currency}/L)
+                            </FieldLabel>
+                            <Input
+                              id={field.name}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(parseFloat(e.target.value))
+                              }
+                              aria-invalid={isInvalid}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+
+                    <form.Field
+                      name="volume"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Volume (mL)
+                            </FieldLabel>
+                            <Input
+                              id={field.name}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(parseFloat(e.target.value))
+                              }
+                              aria-invalid={isInvalid}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+
+                    <form.Field
+                      name="printTime"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Print Time (hours)
+                            </FieldLabel>
+                            <Input
+                              id={field.name}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(parseFloat(e.target.value))
+                              }
+                              aria-invalid={isInvalid}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    />
+                  </div>
 
                   <form.Field
-                    name="printer"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Printer</FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select printer" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {printerOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <form.Field
-                    name="materialCost"
+                    name="removalTime"
                     children={(field) => {
                       const isInvalid =
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
                           <FieldLabel htmlFor={field.name}>
-                            Material Cost ({currency}/L)
+                            Removal Time (minutes)
                           </FieldLabel>
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -547,253 +520,193 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       );
                     }}
                   />
-
-                  <form.Field
-                    name="volume"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Volume (mL)
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) =>
-                              field.handleChange(parseFloat(e.target.value))
-                            }
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-
-                  <form.Field
-                    name="printTime"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Print Time (hours)
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) =>
-                              field.handleChange(parseFloat(e.target.value))
-                            }
-                            aria-invalid={isInvalid}
-                          />
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-                </div>
-
-                <form.Field
-                  name="removalTime"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Removal Time (minutes)
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          type="number"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
-                          aria-invalid={isInvalid}
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-              </FieldGroup>
-            </AccordionContent>
-          </AccordionItem>
+                </FieldGroup>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
           {/* Difficulty Levels Section */}
-          <AccordionItem value="difficulty">
-            <AccordionTrigger className="text-lg font-semibold">
-              Difficulty Levels
-            </AccordionTrigger>
-            <AccordionContent>
-              <FieldGroup className="pt-2">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <form.Field
-                    name="sandingDifficulty"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Sanding Difficulty
-                          </FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {difficultyOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
+          {form.getFieldValue("services").length > 0 && (
+            <AccordionItem value="difficulty">
+              <AccordionTrigger className="text-lg font-semibold">
+                Difficulty Levels
+                <AccordionHeader className="text-destructive text-sm">
+                  You must select a category first
+                </AccordionHeader>
+              </AccordionTrigger>
+              <AccordionContent>
+                <FieldGroup className="pt-2">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {form.getFieldValue("services").includes("painting") && (
+                      <form.Field
+                        name="sandingDifficulty"
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={field.name}>
+                                Sanding Difficulty
+                              </FieldLabel>
+                              <Select
+                                disabled={!form.getFieldValue("category")}
+                                value={field.state.value}
+                                onValueChange={(value) =>
+                                  field.handleChange(value)
+                                }
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select difficulty" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {difficultyOptions.map((option) => (
+                                    <SelectItem
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
+                    )}
 
-                  <form.Field
-                    name="paintingDifficulty"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Painting Difficulty
-                          </FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {difficultyOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
+                    {form.getFieldValue("services").includes("painting") && (
+                      <form.Field
+                        name="paintingDifficulty"
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={field.name}>
+                                Painting Difficulty
+                              </FieldLabel>
+                              <Select
+                                disabled={!form.getFieldValue("category")}
+                                value={field.state.value}
+                                onValueChange={(value) =>
+                                  field.handleChange(value)
+                                }
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select difficulty" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {difficultyOptions.map((option) => (
+                                    <SelectItem
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
+                    )}
+                    {form.getFieldValue("services").includes("support") && (
+                      <form.Field
+                        name="supportDifficulty"
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={field.name}>
+                                Support Difficulty
+                              </FieldLabel>
+                              <Select
+                                value={field.state.value}
+                                onValueChange={(value) =>
+                                  field.handleChange(value)
+                                }
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select difficulty" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {difficultyOptions.map((option) => (
+                                    <SelectItem
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
+                    )}
 
-                  <form.Field
-                    name="supportDifficulty"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Support Difficulty
-                          </FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {difficultyOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-
-                  <form.Field
-                    name="modelingDifficulty"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Modeling Difficulty
-                          </FieldLabel>
-                          <Select
-                            value={field.state.value}
-                            onValueChange={(value) => field.handleChange(value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {difficultyOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </Field>
-                      );
-                    }}
-                  />
-                </div>
-              </FieldGroup>
-            </AccordionContent>
-          </AccordionItem>
+                    {form.getFieldValue("services").includes("modeling") && (
+                      <form.Field
+                        name="modelingDifficulty"
+                        children={(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={field.name}>
+                                Modeling Difficulty
+                              </FieldLabel>
+                              <Select
+                                disabled={!form.getFieldValue("category")}
+                                value={field.state.value}
+                                onValueChange={(value) =>
+                                  field.handleChange(value)
+                                }
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select difficulty" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {difficultyOptions.map((option) => (
+                                    <SelectItem
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      />
+                    )}
+                  </div>
+                </FieldGroup>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
           {/* Files Section */}
           <AccordionItem value="files">
@@ -950,9 +863,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                 children={(subField) => (
                                   <Input
                                     id={subField.name}
-                                    type="number"
-                                    min={0}
-                                    step="0.01"
                                     value={subField.state.value}
                                     onChange={(e) =>
                                       subField.handleChange(
@@ -968,8 +878,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                 children={(subField) => (
                                   <Input
                                     id={subField.name}
-                                    type="number"
-                                    min={1}
                                     value={subField.state.value}
                                     onChange={(e) =>
                                       subField.handleChange(
@@ -1011,6 +919,135 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     </Field>
                   )}
                 />
+              </FieldGroup>
+            </AccordionContent>
+          </AccordionItem>
+          {/* Pricing Section */}
+          <AccordionItem value="pricing">
+            <AccordionTrigger className="text-lg font-semibold">
+              Pricing
+            </AccordionTrigger>
+            <AccordionContent>
+              <FieldGroup className="pt-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <form.Field
+                    name="quantity"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>Quantity</FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(parseInt(e.target.value))
+                            }
+                            aria-invalid={isInvalid}
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+
+                  <form.Field
+                    name="margin"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            Margin (%)
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(parseFloat(e.target.value))
+                            }
+                            aria-invalid={isInvalid}
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+
+                  <form.Field
+                    name="price"
+                    children={(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldLabel htmlFor={field.name}>
+                            Price ({currency})
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="flex gap-6">
+                  <form.Field
+                    name="packaging"
+                    children={(field) => (
+                      <Field orientation="horizontal">
+                        <Checkbox
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) =>
+                            field.handleChange(checked === true)
+                          }
+                        />
+                        <FieldLabel htmlFor={field.name}>
+                          Include Packaging
+                        </FieldLabel>
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="delivery"
+                    children={(field) => (
+                      <Field orientation="horizontal">
+                        <Checkbox
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) =>
+                            field.handleChange(checked === true)
+                          }
+                        />
+                        <FieldLabel htmlFor={field.name}>
+                          Include Delivery
+                        </FieldLabel>
+                      </Field>
+                    )}
+                  />
+                </div>
               </FieldGroup>
             </AccordionContent>
           </AccordionItem>
@@ -1070,7 +1107,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1099,7 +1135,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1127,7 +1162,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1156,7 +1190,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1179,15 +1212,22 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Date</FieldLabel>
-                          <Input
+                          <FieldLabel htmlFor={field.name}>
+                            Machine Purchase Date
+                          </FieldLabel>
+                          <DatePicker
                             id={field.name}
-                            name={field.name}
-                            type="date"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            aria-invalid={isInvalid}
+                            value={
+                              field.state.value
+                                ? new Date(field.state.value)
+                                : undefined
+                            }
+                            onChange={(date) => {
+                              field.handleChange(
+                                date ? date.toISOString().split("T")[0] : "",
+                              );
+                            }}
+                            placeholder="Select purchase date"
                           />
                           {isInvalid && (
                             <FieldError errors={field.state.meta.errors} />
@@ -1213,7 +1253,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1245,7 +1284,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
@@ -1279,7 +1317,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <Input
                             id={field.name}
                             name={field.name}
-                            type="number"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) =>
