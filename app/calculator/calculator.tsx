@@ -4,10 +4,11 @@ import { cn, toNumOrZero } from "@/lib/utils";
 import { CalculatorForm } from "./calculatorForm";
 import { computeTotal } from "./formulas";
 import { useState } from "react";
-import { Breakdown, CalculatorFormValues } from "./types";
+import { Breakdown, CalculatorFormValues, extraMaterialSchema } from "./types";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -43,6 +44,13 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
+import { Pie, PieChart } from "recharts";
 
 const currency = "KWD";
 export default function Calculator() {
@@ -222,6 +230,7 @@ export default function Calculator() {
         </Card>
         {/*<Preview3d />*/}
         <CostsBreakdown className="mt-7" breakdown={breakdown} />
+        <ChartPieLegend className="mt-7" breakdown={breakdown}></ChartPieLegend>
       </div>
     </div>
   );
@@ -342,7 +351,6 @@ function CostsBreakdown({ className, breakdown }: SummaryProps) {
   return (
     <Card className={cn("flex flex-col gap-5 bg-gray-900", className)}>
       <CardHeader className="text-lg font-bold">Project Breakdown</CardHeader>
-
       <CardContent>
         <Accordion
           type="multiple"
@@ -437,4 +445,103 @@ function CostsBreakdown({ className, breakdown }: SummaryProps) {
   );
 }
 
-function Graph() {}
+function ChartPieLegend({
+  breakdown,
+  className,
+}: {
+  breakdown: Breakdown;
+  className: string;
+}) {
+  const chartConfig = {
+    value: {
+      label: "Value",
+    },
+    materials: {
+      label: "Materials",
+      color: "var(--chart-1)",
+    },
+    extraMaterials: {
+      label: "Extra Materials",
+      color: "var(--chart-2)",
+    },
+    painting: {
+      label: "Painting",
+      color: "var(--chart-3)",
+    },
+    sanding: {
+      label: "Sanding",
+      color: "var(--chart-4)",
+    },
+    printingLabor: {
+      label: "Printing Labor",
+      color: "var(--chart-5)",
+    },
+    electricity: {
+      label: "Electricity",
+      color: "var(--chart-6)",
+    },
+    support: {
+      label: "Support",
+      color: "var(--chart-7)",
+    },
+    modeling: {
+      label: "Modeling",
+      color: "var(--chart-8)",
+    },
+    rent: {
+      label: "Rent",
+      color: "var(--chart-9)",
+    },
+  } satisfies ChartConfig;
+
+  const chartData: { cost: string; value: number; fill: string }[] = [];
+
+  // Add COGS data (excluding total)
+  for (const [key, value] of Object.entries(breakdown.cogs)) {
+    if (key !== "total" && value > 0) {
+      const configKey = key as keyof typeof chartConfig;
+      chartData.push({
+        cost: key,
+        value: value,
+        fill: `var(--color-${key})`,
+      });
+    }
+  }
+
+  // Add fixed costs data (excluding total)
+  for (const [key, value] of Object.entries(breakdown.fixedCosts)) {
+    if (key !== "total" && value > 0) {
+      chartData.push({
+        cost: key,
+        value: value,
+        fill: `var(--color-${key})`,
+      });
+    }
+  }
+
+  return (
+    <Card className={cn("bg-gray-900", className)}>
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Cost Breakdown</CardTitle>
+        <CardDescription>Distribution of costs</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-[16/9] max-h-[300px]"
+        >
+          <PieChart layout="horizontal">
+            <Pie data={chartData} dataKey="value" nameKey="cost" />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="cost" />}
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+              className="flex-col gap-2 *:justify-start"
+            />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}

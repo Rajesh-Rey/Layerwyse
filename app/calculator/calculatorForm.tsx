@@ -589,6 +589,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           </FieldLabel>
                           <Select
                             value={field.state.value}
+                            disabled={!form.getFieldValue("category")}
                             onValueChange={(value) => field.handleChange(value)}
                           >
                             <SelectTrigger className="w-full">
