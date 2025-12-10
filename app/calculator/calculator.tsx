@@ -1,11 +1,17 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, toNumOrZero } from "@/lib/utils";
 import { CalculatorForm } from "./calculatorForm";
 import { computeTotal } from "./formulas";
 import { useState } from "react";
 import { Breakdown, CalculatorFormValues } from "./types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -13,11 +19,36 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import {
+  ChartBarDecreasing,
+  ChartColumnBig,
+  ChartColumnDecreasing,
+  ClipboardCheck,
+  Crown,
+  Currency,
+  Gem,
+  Icon,
+  Package,
+  TvIcon,
+} from "lucide-react";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 
+const currency = "KWD";
 export default function Calculator() {
   const [breakdown, setBreakdown] = useState<Breakdown>({
     cogs: {
-      material: 0,
+      materials: 0,
       extraMaterials: 0,
       painting: 0,
       sanding: 0,
@@ -25,16 +56,31 @@ export default function Calculator() {
       total: 0,
     },
     fixedCosts: {
+      electricity: 0,
       support: 0,
       modeling: 0,
       rent: 0,
       total: 0,
     },
     suggestedPrice: 0,
-    extraMaterials: 0,
     total: 0,
     price: 0,
   });
+
+  const [selectedMargin, setSelectedMargin] = useState<string>("Standard");
+  const [margin, setMargin] = useState<number>(30);
+
+  const competitiveMargin = 25;
+  const standardMargin = 30;
+  const premiumMargin = 80;
+  const luxuryMargin = 100;
+
+  function price(price: number, margin: number) {
+    return price + (price * margin) / 100;
+  }
+  function profit(price: number, cost: number) {
+    return price - cost;
+  }
 
   const handleFormChange = (value: CalculatorFormValues) => {
     // check for removed services so they are not included in the calculation
@@ -42,8 +88,8 @@ export default function Calculator() {
     const copy = { ...value };
 
     if (!value.services.includes("printing")) {
-      copy.volume = 0;
-      copy.removalTime = 0;
+      copy.materials = [{ costPerKg: 0, weight: 0, material: "" }];
+      copy.removalTimeInMinutes = 0;
       copy.printTime = 0;
     }
 
@@ -58,26 +104,195 @@ export default function Calculator() {
     if (!value.services.includes("modeling")) {
       copy.modelingDifficulty = "none";
     }
+    copy.extraMaterials = copy.extraMaterials.map((e) => ({
+      name: e.name,
+      unitCost: toNumOrZero(e.unitCost),
+      quantity: toNumOrZero(e.quantity),
+    }));
+    copy.materials = copy.materials.map((e) => ({
+      material: e.material,
+      costPerKg: toNumOrZero(e.costPerKg),
+      weight: toNumOrZero(e.weight),
+    }));
+    console.log("copy ", copy.extraMaterials, value.extraMaterials);
+
+    copy.consumableCost = toNumOrZero(copy.consumableCost);
+    copy.removalTimeInMinutes = toNumOrZero(copy.removalTimeInMinutes);
 
     setBreakdown(computeTotal(copy));
   };
 
+  const onMarginSelect = (margin: string) => {
+    setSelectedMargin(margin);
+  };
+
   return (
-    <div className="flex h-dvh w-full gap-4 p-4">
-      <div className="results w-full">
-        <Preview3d />
-        <Summary className="mt-7" breakdown={breakdown} />
-      </div>
-      <div className="inputs flex w-full flex-col gap-4 overflow-y-auto">
+    <div className="flex w-full gap-4 p-4">
+      <div className="inputs flex w-full flex-col gap-4">
         <CalculatorForm
           onChange={handleFormChange}
           className="p-4"
         ></CalculatorForm>
       </div>
+
+      <div className="results sticky top-0 h-fit w-full self-start">
+        <Card className="bg-gray-900">
+          <CardHeader className="text-lg font-bold">
+            Suggested Pricing
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <MarginOption
+              className="bg-red-500"
+              selected={selectedMargin === "Competitive"}
+              onClick={onMarginSelect}
+              price={price(toNumOrZero(breakdown.total), competitiveMargin)}
+              title="Competitive"
+              margin={competitiveMargin}
+            >
+              <ChartColumnDecreasing></ChartColumnDecreasing>
+            </MarginOption>
+
+            <MarginOption
+              className="bg-blue-600"
+              selected={selectedMargin === "Standard"}
+              onClick={() => onMarginSelect("Standard")}
+              price={price(toNumOrZero(breakdown.total), standardMargin)}
+              title="Standard"
+              margin={standardMargin}
+            >
+              <Package></Package>
+            </MarginOption>
+
+            <MarginOption
+              className="bg-amber-600"
+              selected={selectedMargin === "Premium"}
+              onClick={() => onMarginSelect("Premium")}
+              price={price(toNumOrZero(breakdown.total), premiumMargin)}
+              title="Premium"
+              margin={premiumMargin}
+            >
+              <Gem></Gem>
+            </MarginOption>
+
+            <MarginOption
+              className="bg-green-800"
+              selected={selectedMargin === "Luxury"}
+              onClick={() => onMarginSelect("Luxury")}
+              price={price(toNumOrZero(breakdown.total), luxuryMargin)}
+              title="Luxury"
+              margin={luxuryMargin}
+            >
+              <Crown></Crown>
+            </MarginOption>
+
+            <MarginOption
+              className="col-span-1 w-full bg-gray-600 sm:col-span-2"
+              variant="custom"
+              selected={selectedMargin === "Custom"}
+              onClick={() => onMarginSelect("Custom")}
+              price={price(toNumOrZero(breakdown.total), margin)}
+              title="Custom"
+              onChange={(value) => {
+                setMargin(value);
+              }}
+              margin={margin}
+            >
+              <TvIcon></TvIcon>
+            </MarginOption>
+
+            <div className="col-span-1 mt-4 flex w-full justify-between bg-gray-900 text-3xl sm:col-span-2">
+              <div className="font-bold">Profit </div>
+              <div
+                className={cn(
+                  "",
+                  profit(price(breakdown.total, margin), breakdown.total) > 0
+                    ? "text-green-500"
+                    : "text-red-500",
+                )}
+              >
+                {profit(
+                  price(breakdown.total, margin),
+                  breakdown.total,
+                ).toFixed(3)}{" "}
+                {currency}
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter></CardFooter>
+        </Card>
+        {/*<Preview3d />*/}
+        <CostsBreakdown className="mt-7" breakdown={breakdown} />
+      </div>
     </div>
   );
 }
 
+function MarginOption({
+  title,
+  margin,
+  price,
+  selected,
+  variant,
+  children,
+  onClick,
+  className,
+  onChange,
+}: {
+  title: string;
+  margin: number;
+  selected?: boolean;
+  price: number;
+  variant?: "custom";
+  children: React.ReactNode;
+  onClick?: (title: string) => void;
+  onChange?: (value: number) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      onClick={() => onClick && onClick(title)}
+      className={cn(
+        className,
+        "flex flex-col rounded-xl",
+        selected && "border-4 border-blue-400",
+      )}
+    >
+      <Item className="p-4">
+        <ItemContent className="m-flex flex-row items-center">
+          <div className="flex items-center gap-3">
+            {children}
+
+            <div className="">
+              <ItemTitle>{title}</ItemTitle>
+              <ItemDescription>{margin} % profit margin</ItemDescription>
+            </div>
+          </div>
+        </ItemContent>
+        <ItemActions className="items-center">
+          <div className="text-lg">
+            {price?.toFixed(3)} {currency}
+          </div>
+        </ItemActions>
+      </Item>
+      {variant == "custom" && (
+        <div className="mb-4 flex gap-2 pr-4 pl-4">
+          <Slider
+            max={100}
+            step={1}
+            value={[margin]}
+            onValueChange={(value) => onChange && onChange(value[0])}
+          ></Slider>
+          <Input
+            value={margin}
+            className="h-8 w-12"
+            onChange={(e) => onChange && onChange(Number(e.target.value))}
+          />
+          %
+        </div>
+      )}
+    </div>
+  );
+}
 function Preview3d() {
   return <div className="h-[500] w-full bg-gray-500">3d preview</div>;
 }
@@ -99,18 +314,20 @@ function CostLineItem({ label, value, show = true }: CostLineItemProps) {
   return (
     <div className="flex justify-between py-1.5 text-sm">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium tabular-nums">{value.toFixed(3)} KWD</span>
+      <span className="font-medium tabular-nums">
+        {value.toFixed(3)} {currency}
+      </span>
     </div>
   );
 }
 
-function Summary({ className, breakdown }: SummaryProps) {
+function CostsBreakdown({ className, breakdown }: SummaryProps) {
   const profit = breakdown.price - breakdown.total;
   const profitMargin =
     breakdown.price > 0 ? (profit / breakdown.price) * 100 : 0;
 
   const hasCOGSDetails =
-    breakdown.cogs.material > 0 ||
+    breakdown.cogs.materials > 0 ||
     breakdown.cogs.extraMaterials > 0 ||
     breakdown.cogs.painting > 0 ||
     breakdown.cogs.sanding > 0 ||
@@ -119,162 +336,105 @@ function Summary({ className, breakdown }: SummaryProps) {
   const hasFixedCostsDetails =
     breakdown.fixedCosts.support > 0 ||
     breakdown.fixedCosts.modeling > 0 ||
+    breakdown.fixedCosts.electricity > 0 ||
     breakdown.fixedCosts.rent > 0;
 
   return (
-    <div className={cn("flex flex-col gap-5", className)}>
-      <h1 className="text-xl font-semibold">Project Breakdown</h1>
+    <Card className={cn("flex flex-col gap-5 bg-gray-900", className)}>
+      <CardHeader className="text-lg font-bold">Project Breakdown</CardHeader>
 
-      {/* Price Summary Card - Most Important Info */}
-      <Card className="border-accent/30 bg-accent/5">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <p className="text-muted-foreground text-sm">Total Cost</p>
-              <p className="text-2xl font-bold tabular-nums">
-                {breakdown.total.toFixed(3)}
-                <span className="text-muted-foreground ml-1 text-sm font-normal">
-                  KWD
+      <CardContent>
+        <Accordion
+          type="multiple"
+          className="w-full"
+          defaultValue={["cogs", "fixed"]}
+        >
+          {/* COGS Section */}
+          <AccordionItem value="cogs" className="border-b-0">
+            <AccordionTrigger className="py-3 hover:no-underline">
+              <div className="flex w-full items-center justify-between pr-2">
+                <span className="font-medium">Cost of Goods Sold</span>
+                <span className="text-accent tabular-nums">
+                  {breakdown.cogs.total.toFixed(3)} {currency}
                 </span>
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-muted-foreground text-sm">Price</p>
-              <p className="text-accent text-2xl font-bold tabular-nums">
-                {breakdown.price.toFixed(3)}
-                <span className="text-muted-foreground ml-1 text-sm font-normal">
-                  KWD
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              {hasCOGSDetails ? (
+                <div className="bg-muted/50 rounded-lg px-4 py-2">
+                  <CostLineItem
+                    label="Material"
+                    value={breakdown.cogs.materials}
+                  />
+                  <CostLineItem
+                    label="Extra Materials"
+                    value={breakdown.cogs.extraMaterials}
+                  />
+                  <CostLineItem
+                    label="Painting"
+                    value={breakdown.cogs.painting}
+                  />
+                  <CostLineItem
+                    label="Sanding"
+                    value={breakdown.cogs.sanding}
+                  />
+                  <CostLineItem
+                    label="Printing Labor"
+                    value={breakdown.cogs.printingLabor}
+                  />
+                </div>
+              ) : (
+                <p className="text-muted-foreground py-2 text-sm">
+                  No COGS items yet. Fill in the form to see the breakdown.
+                </p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          <Separator />
+
+          {/* Operating Costs Section */}
+          <AccordionItem value="fixed" className="border-b-0">
+            <AccordionTrigger className="py-3 hover:no-underline">
+              <div className="flex w-full items-center justify-between pr-2">
+                <span className="font-medium">Operating Costs</span>
+                <span className="text-accent tabular-nums">
+                  {breakdown.fixedCosts.total.toFixed(3)} {currency}
                 </span>
-              </p>
-            </div>
-          </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              {hasFixedCostsDetails ? (
+                <div className="bg-muted/50 rounded-lg px-4 py-2">
+                  <CostLineItem
+                    label="Support"
+                    value={breakdown.fixedCosts.support}
+                  />
+                  <CostLineItem
+                    label="Modeling"
+                    value={breakdown.fixedCosts.modeling}
+                  />
+                  <CostLineItem
+                    label="Rent"
+                    value={breakdown.fixedCosts.rent}
+                  />
 
-          <Separator className="my-4" />
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm">Profit</p>
-              <p
-                className={cn(
-                  "text-xl font-bold tabular-nums",
-                  profit >= 0 ? "text-green-600" : "text-destructive",
-                )}
-              >
-                {profit.toFixed(3)} KWD
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-muted-foreground text-sm">Margin</p>
-              <p
-                className={cn(
-                  "text-xl font-bold tabular-nums",
-                  profit >= 0 ? "text-green-600" : "text-destructive",
-                )}
-              >
-                {profitMargin.toFixed(1)}%
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-muted-foreground text-sm">Suggested</p>
-              <p className="text-muted-foreground text-xl font-semibold tabular-nums">
-                {breakdown.suggestedPrice.toFixed(3)} KWD
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Cost Breakdown Card */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Cost Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion
-            type="multiple"
-            className="w-full"
-            defaultValue={["cogs", "fixed"]}
-          >
-            {/* COGS Section */}
-            <AccordionItem value="cogs" className="border-b-0">
-              <AccordionTrigger className="py-3 hover:no-underline">
-                <div className="flex w-full items-center justify-between pr-2">
-                  <span className="font-medium">Cost of Goods Sold</span>
-                  <span className="text-accent tabular-nums">
-                    {breakdown.cogs.total.toFixed(3)} KWD
-                  </span>
+                  <CostLineItem
+                    label="Electricity"
+                    value={breakdown.fixedCosts.electricity}
+                  />
                 </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {hasCOGSDetails ? (
-                  <div className="bg-muted/50 rounded-lg px-4 py-2">
-                    <CostLineItem
-                      label="Material"
-                      value={breakdown.cogs.material}
-                    />
-                    <CostLineItem
-                      label="Extra Materials"
-                      value={breakdown.cogs.extraMaterials}
-                    />
-                    <CostLineItem
-                      label="Painting"
-                      value={breakdown.cogs.painting}
-                    />
-                    <CostLineItem
-                      label="Sanding"
-                      value={breakdown.cogs.sanding}
-                    />
-                    <CostLineItem
-                      label="Printing Labor"
-                      value={breakdown.cogs.printingLabor}
-                    />
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground py-2 text-sm">
-                    No COGS items yet. Fill in the form to see the breakdown.
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            <Separator />
-
-            {/* Fixed Costs Section */}
-            <AccordionItem value="fixed" className="border-b-0">
-              <AccordionTrigger className="py-3 hover:no-underline">
-                <div className="flex w-full items-center justify-between pr-2">
-                  <span className="font-medium">Fixed Costs</span>
-                  <span className="text-accent tabular-nums">
-                    {breakdown.fixedCosts.total.toFixed(3)} KWD
-                  </span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {hasFixedCostsDetails ? (
-                  <div className="bg-muted/50 rounded-lg px-4 py-2">
-                    <CostLineItem
-                      label="Support"
-                      value={breakdown.fixedCosts.support}
-                    />
-                    <CostLineItem
-                      label="Modeling"
-                      value={breakdown.fixedCosts.modeling}
-                    />
-                    <CostLineItem
-                      label="Rent"
-                      value={breakdown.fixedCosts.rent}
-                    />
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground py-2 text-sm">
-                    No fixed costs yet. Fill in the form to see the breakdown.
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </CardContent>
-      </Card>
-    </div>
+              ) : (
+                <p className="text-muted-foreground py-2 text-sm">
+                  No fixed costs yet. Fill in the form to see the breakdown.
+                </p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </CardContent>
+    </Card>
   );
 }
+
+function Graph() {}

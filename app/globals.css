@@ -151,3 +151,9 @@
     font-family: "Manrope", Arial, Helvetica, sans-serif;
   }
 }
+
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

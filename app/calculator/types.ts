@@ -1,7 +1,7 @@
 import { nullable, z } from "zod";
 
 export type CogsBreakdown = {
-  material: number;
+  materials: number;
   extraMaterials: number;
   painting: number;
   sanding: number;
@@ -10,6 +10,7 @@ export type CogsBreakdown = {
 };
 
 export type FixedCostsBreakdown = {
+  electricity: number;
   support: number;
   modeling: number;
   rent: number;
@@ -19,7 +20,6 @@ export type FixedCostsBreakdown = {
 export type Breakdown = {
   cogs: CogsBreakdown;
   fixedCosts: FixedCostsBreakdown;
-  extraMaterials: number;
   total: number;
   price: number;
   suggestedPrice: number;
@@ -56,11 +56,18 @@ export type CategoryPrices = {
 
 export const extraMaterialSchema = z.object({
   name: z.string().min(1, "Material name is required"),
-  unitPrice: z.number().min(0, "Unit price must be positive"),
+  unitCost: z.number().min(0, "Unit price must be positive"),
   quantity: z.number().min(1, "Quantity must be at least 1"),
 });
-
 export type ExtraMaterial = z.infer<typeof extraMaterialSchema>;
+
+export const materialSchema = z.object({
+  material: z.string().min(1, "Material name is required"),
+  costPerKg: z.number().min(0, "Cost must be positive"),
+  weight: z.number().min(1, "Weight must be positive"),
+});
+
+export type Material = z.infer<typeof materialSchema>;
 
 export const calculatorFormSchema = z.object({
   name: z.string(),
@@ -74,11 +81,9 @@ export const calculatorFormSchema = z.object({
   packaging: z.boolean(),
   delivery: z.boolean(),
   material: z.string(),
-  materialCost: z.number().min(0, "Material cost must be positive"),
-  volume: z.number().min(0, "Volume must be positive"),
   printer: z.string(),
   printTime: z.number().min(0, "Print time must be positive"),
-  removalTime: z.number().min(0, "Removal time must be positive"),
+  removalTimeInMinutes: z.number().min(0, "Removal time must be positive"),
   sandingDifficulty: z.string(),
   paintingDifficulty: z.string(),
   supportDifficulty: z.string(),
@@ -86,6 +91,7 @@ export const calculatorFormSchema = z.object({
   images: z.array(z.string()),
   files: z.array(z.string()),
   extraMaterials: z.array(extraMaterialSchema),
+  materials: z.array(materialSchema),
 
   country: z.string(),
   electricityCost: z.number(),
