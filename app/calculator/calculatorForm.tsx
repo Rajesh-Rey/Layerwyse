@@ -32,9 +32,11 @@ import { cn, toNumOrZero } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 
 const currency = "KWD";
 const defaultResinCost = 11;
+const allowMultipleMaterials = false;
 
 const serviceOptions = [
   { value: "printing", label: "3D Printing" },
@@ -143,16 +145,16 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
   });
 
   return (
-    <Card className={cn(className, "bg-gray-900 p-6")}>
-      <form
-        id="calculator-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="space-y-8"
-      >
-        {/* Project Details Section */}
+    <form
+      id="calculator-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+      className={cn(className, "space-y-4")}
+    >
+      {/* Project Details Card */}
+      <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Project Details</h2>
           <FieldGroup className="pt-2">
@@ -163,7 +165,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Project Name</FieldLabel>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="flex items-center gap-1.5"
+                    >
+                      Project Name
+                      <InfoTooltip content="A unique name to identify this project for future reference" />
+                    </FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -189,7 +197,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Services</FieldLabel>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="flex items-center gap-1.5"
+                    >
+                      Services
+                      <InfoTooltip content="Select all the services you'll provide for this project (printing, modeling, painting, etc.)" />
+                    </FieldLabel>
                     <MultiSelect
                       options={serviceOptions}
                       selected={field.state.value}
@@ -215,7 +229,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="flex items-center gap-1.5"
+                    >
+                      Category
+                      <InfoTooltip content="The type of product being created (e.g., miniatures, functional parts, cosplay props)" />
+                    </FieldLabel>
                     <Select
                       value={field.state.value}
                       onValueChange={(value) => field.handleChange(value)}
@@ -246,7 +266,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Customer</FieldLabel>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="flex items-center gap-1.5"
+                    >
+                      Customer
+                      <InfoTooltip content="Name or identifier of the customer ordering this project" />
+                    </FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -265,9 +291,11 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
             />
           </FieldGroup>
         </div>
+      </Card>
 
-        {/* Printing Section */}
-        {form.getFieldValue("services").includes("printing") && (
+      {/* Printing Details Card */}
+      {form.getFieldValue("services").includes("printing") && (
+        <Card className="bg-gray-900 p-6">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Printing Details</h2>
             <FieldGroup className="pt-2">
@@ -278,7 +306,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Printer</FieldLabel>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="flex items-center gap-1.5"
+                      >
+                        Printer
+                        <InfoTooltip content="The 3D printer that will be used for this project" />
+                      </FieldLabel>
                       <Select
                         value={field.state.value}
                         onValueChange={(value) => field.handleChange(value)}
@@ -301,7 +335,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   );
                 }}
               />
-              <div className="flex gap-2">
+              <div className="flex items-end gap-2">
                 <form.Field
                   name="removalTimeInMinutes"
                   children={(field) => {
@@ -309,8 +343,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
                           Removal Time (minutes)
+                          <InfoTooltip content="Estimated time to remove supports and clean the print after printing" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -336,8 +374,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
                           Print Time (hours)
+                          <InfoTooltip content="Total print time as estimated by your slicer software" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -365,94 +407,109 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     mode="array"
                     children={(field) => (
                       <Field>
-                        <div className="rounded-lg border p-4">
-                          {field.state.value.length > 0 && (
-                            <div className="text-muted-foreground mb-2 grid grid-cols-[1fr_100px_80px_32px] gap-2 text-sm font-medium">
-                              <span>Material</span>
-                              <span>Price / kg ({currency})</span>
-                              <span>Weight</span>
-                              <span></span>
-                            </div>
-                          )}
+                        <div className="rounded-lg border">
                           <div className="space-y-2">
                             {field.state.value.map((_, index) => (
                               <div
+                                className="itemContainer align-center container flex justify-between"
                                 key={index}
-                                className="grid grid-cols-[1fr_100px_80px_32px] items-center gap-2"
                               >
-                                <form.Field
-                                  name={`materials[${index}].material`}
-                                  children={(field) => {
-                                    const isInvalid =
-                                      field.state.meta.isTouched &&
-                                      !field.state.meta.isValid;
-                                    return (
-                                      <Field data-invalid={isInvalid}>
-                                        <Select
-                                          value={field.state.value}
-                                          onValueChange={(value) =>
-                                            field.handleChange(value)
+                                <div className="grid w-full grid-cols-1 items-end gap-2 p-4 @xs:grid-cols-3">
+                                  <form.Field
+                                    name={`materials[${index}].material`}
+                                    children={(field) => {
+                                      const isInvalid =
+                                        field.state.meta.isTouched &&
+                                        !field.state.meta.isValid;
+                                      return (
+                                        <Field data-invalid={isInvalid}>
+                                          <FieldLabel className="flex items-center gap-1.5">
+                                            Material
+                                            <InfoTooltip content="The type of filament or resin used for printing" />
+                                          </FieldLabel>
+                                          <Select
+                                            value={field.state.value}
+                                            onValueChange={(value) =>
+                                              field.handleChange(value)
+                                            }
+                                          >
+                                            <SelectTrigger className="w-full">
+                                              <SelectValue placeholder="Select material" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {materialOptions.map((option) => (
+                                                <SelectItem
+                                                  key={option.value}
+                                                  value={option.value}
+                                                >
+                                                  {option.label}
+                                                </SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                          {isInvalid && (
+                                            <FieldError
+                                              errors={field.state.meta.errors}
+                                            />
+                                          )}
+                                        </Field>
+                                      );
+                                    }}
+                                  />
+                                  <form.Field
+                                    name={`materials[${index}].costPerKg`}
+                                    children={(subField) => (
+                                      <Field>
+                                        <FieldLabel className="flex items-center gap-1.5">
+                                          Cost/kg
+                                          <InfoTooltip content="Your cost per kilogram for this material" />
+                                        </FieldLabel>
+                                        <Input
+                                          id={subField.name}
+                                          value={subField.state.value}
+                                          onChange={(e) =>
+                                            subField.handleChange(
+                                              parseFloat(e.target.value) || 0,
+                                            )
                                           }
-                                        >
-                                          <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select material" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {materialOptions.map((option) => (
-                                              <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                              >
-                                                {option.label}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                        {isInvalid && (
-                                          <FieldError
-                                            errors={field.state.meta.errors}
-                                          />
-                                        )}
+                                          placeholder="0.00"
+                                        />
                                       </Field>
-                                    );
-                                  }}
-                                />
-                                <form.Field
-                                  name={`materials[${index}].costPerKg`}
-                                  children={(subField) => (
-                                    <Input
-                                      id={subField.name}
-                                      value={subField.state.value}
-                                      onChange={(e) =>
-                                        subField.handleChange(
-                                          parseFloat(e.target.value) || 0,
-                                        )
-                                      }
-                                      placeholder="0.00"
-                                    />
-                                  )}
-                                />
-                                <form.Field
-                                  name={`materials[${index}].weight`}
-                                  children={(subField) => (
-                                    <Input
-                                      id={subField.name}
-                                      value={subField.state.value}
-                                      onChange={(e) =>
-                                        subField.handleChange(
-                                          parseInt(e.target.value) || 0,
-                                        )
-                                      }
-                                      placeholder=""
-                                    />
-                                  )}
-                                />
+                                    )}
+                                  />
+                                  <form.Field
+                                    name={`materials[${index}].weight`}
+                                    children={(subField) => (
+                                      <Field>
+                                        <FieldLabel className="flex items-center gap-1.5">
+                                          Weight
+                                          <InfoTooltip content="Weight of material used in grams (as estimated by your slicer)" />
+                                        </FieldLabel>
+                                        <Input
+                                          id={subField.name}
+                                          value={subField.state.value}
+                                          onChange={(e) =>
+                                            subField.handleChange(
+                                              parseInt(e.target.value) || 0,
+                                            )
+                                          }
+                                          placeholder=""
+                                        />
+                                      </Field>
+                                    )}
+                                  />
+                                </div>
+
                                 <Button
+                                  className={cn(
+                                    "text-muted-foreground hover:text-destructive h-8 w-8 place-items-center",
+                                    "p-4",
+                                    !allowMultipleMaterials && "hidden",
+                                  )}
                                   type="button"
-                                  disabled={true}
+                                  disabled={!allowMultipleMaterials}
                                   variant="ghost"
                                   size="icon"
-                                  className="text-muted-foreground hover:text-destructive h-8 w-8"
                                   onClick={() => field.removeValue(index)}
                                 >
                                   <XIcon className="h-4 w-4" />
@@ -460,23 +517,24 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                               </div>
                             ))}
                           </div>
-                          <Button
-                            type="button"
-                            disabled={true}
-                            variant="outline"
-                            size="sm"
-                            className="mt-3"
-                            onClick={() =>
-                              field.pushValue({
-                                material: "",
-                                weight: 0,
-                                costPerKg: 0,
-                              })
-                            }
-                          >
-                            Add Material
-                          </Button>
                         </div>
+
+                        <Button
+                          type="button"
+                          disabled={!allowMultipleMaterials}
+                          variant="outline"
+                          size="sm"
+                          className="mt-3"
+                          onClick={() =>
+                            field.pushValue({
+                              material: "",
+                              weight: 0,
+                              costPerKg: 0,
+                            })
+                          }
+                        >
+                          Add Material
+                        </Button>
                       </Field>
                     )}
                   />
@@ -484,10 +542,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               </div>
             </FieldGroup>
           </div>
-        )}
+        </Card>
+      )}
 
-        {/* Difficulty Levels Section */}
-        {form.getFieldValue("services").length > 0 && (
+      {/* Difficulty Levels Card */}
+      {form.getFieldValue("services").length > 0 && (
+        <Card className="bg-gray-900 p-6">
           <div className="space-y-4">
             <div className="text-lg font-semibold">
               Difficulty Levels
@@ -507,8 +567,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
+                          <FieldLabel
+                            htmlFor={field.name}
+                            className="flex items-center gap-1.5"
+                          >
                             Sanding Difficulty
+                            <InfoTooltip content="How complex is the sanding work required for this project" />
                           </FieldLabel>
                           <Select
                             disabled={!form.getFieldValue("category")}
@@ -546,8 +610,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
+                          <FieldLabel
+                            htmlFor={field.name}
+                            className="flex items-center gap-1.5"
+                          >
                             Painting Difficulty
+                            <InfoTooltip content="How complex is the painting work required (detail level, color count, techniques)" />
                           </FieldLabel>
                           <Select
                             disabled={!form.getFieldValue("category")}
@@ -584,8 +652,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
+                          <FieldLabel
+                            htmlFor={field.name}
+                            className="flex items-center gap-1.5"
+                          >
                             Support Difficulty
+                            <InfoTooltip content="How complex is the support removal work (delicate areas, intricate details)" />
                           </FieldLabel>
                           <Select
                             value={field.state.value}
@@ -623,8 +695,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
+                          <FieldLabel
+                            htmlFor={field.name}
+                            className="flex items-center gap-1.5"
+                          >
                             Modeling Difficulty
+                            <InfoTooltip content="How complex is the 3D modeling work (custom sculpting, modifications, print prep)" />
                           </FieldLabel>
                           <Select
                             disabled={!form.getFieldValue("category")}
@@ -656,9 +732,11 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               </div>
             </FieldGroup>
           </div>
-        )}
+        </Card>
+      )}
 
-        {/* Extra Materials Section */}
+      {/* Extra Materials Card */}
+      <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Extra Materials</h2>
           <FieldGroup className="pt-2">
@@ -671,69 +749,82 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     Add extra materials used in this project (e.g., magnets,
                     keychain rings, metal inserts)
                   </FieldDescription>
-                  <div className="rounded-lg border p-4">
-                    {field.state.value.length > 0 && (
-                      <div className="text-muted-foreground mb-2 grid grid-cols-[1fr_100px_80px_32px] gap-2 text-sm font-medium">
-                        <span>Name</span>
-                        <span>Cost ({currency})</span>
-                        <span>Qty</span>
-                        <span></span>
-                      </div>
-                    )}
+                  <div className="rounded-lg border">
                     <div className="space-y-2">
                       {field.state.value.map((_, index) => (
                         <div
+                          className="itemContainer align-center @container flex justify-between"
                           key={index}
-                          className="grid grid-cols-[1fr_100px_80px_32px] items-center gap-2"
                         >
-                          <form.Field
-                            name={`extraMaterials[${index}].name`}
-                            children={(subField) => (
-                              <Input
-                                id={subField.name}
-                                value={subField.state.value}
-                                onChange={(e) =>
-                                  subField.handleChange(e.target.value)
-                                }
-                                placeholder="e.g., Magnets"
-                              />
-                            )}
-                          />
-                          <form.Field
-                            name={`extraMaterials[${index}].unitCost`}
-                            children={(subField) => (
-                              <Input
-                                id={subField.name}
-                                value={subField.state.value}
-                                onChange={(e) =>
-                                  subField.handleChange(
-                                    parseFloat(e.target.value),
-                                  )
-                                }
-                                placeholder="0.00"
-                              />
-                            )}
-                          />
-                          <form.Field
-                            name={`extraMaterials[${index}].quantity`}
-                            children={(subField) => (
-                              <Input
-                                id={subField.name}
-                                value={subField.state.value}
-                                onChange={(e) =>
-                                  subField.handleChange(
-                                    parseInt(e.target.value),
-                                  )
-                                }
-                                placeholder="1"
-                              />
-                            )}
-                          />
+                          <div className="grid w-full grid-cols-1 items-end gap-2 p-4 @xs:grid-cols-3">
+                            <form.Field
+                              name={`extraMaterials[${index}].name`}
+                              children={(subField) => (
+                                <Field>
+                                  <FieldLabel className="flex items-center gap-1.5">
+                                    Name
+                                    <InfoTooltip content="Name of the extra material (e.g., magnets, inserts, keychain rings)" />
+                                  </FieldLabel>
+                                  <Input
+                                    id={subField.name}
+                                    value={subField.state.value}
+                                    onChange={(e) =>
+                                      subField.handleChange(e.target.value)
+                                    }
+                                    placeholder="e.g., Magnets"
+                                  />
+                                </Field>
+                              )}
+                            />
+                            <form.Field
+                              name={`extraMaterials[${index}].unitCost`}
+                              children={(subField) => (
+                                <Field>
+                                  <FieldLabel className="flex items-center gap-1.5">
+                                    Cost ({currency})
+                                    <InfoTooltip content="Cost per unit of this extra material" />
+                                  </FieldLabel>
+                                  <Input
+                                    id={subField.name}
+                                    value={subField.state.value}
+                                    onChange={(e) =>
+                                      subField.handleChange(
+                                        parseFloat(e.target.value) || 0,
+                                      )
+                                    }
+                                    placeholder="0.00"
+                                  />
+                                </Field>
+                              )}
+                            />
+                            <form.Field
+                              name={`extraMaterials[${index}].quantity`}
+                              children={(subField) => (
+                                <Field>
+                                  <FieldLabel className="flex items-center gap-1.5">
+                                    Quantity
+                                    <InfoTooltip content="Number of units used in this project" />
+                                  </FieldLabel>
+                                  <Input
+                                    id={subField.name}
+                                    value={subField.state.value}
+                                    onChange={(e) =>
+                                      subField.handleChange(
+                                        parseInt(e.target.value) || 0,
+                                      )
+                                    }
+                                    placeholder="1"
+                                  />
+                                </Field>
+                              )}
+                            />
+                          </div>
+
                           <Button
+                            className="text-muted-foreground hover:text-destructive h-8 w-8 place-items-center p-4"
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="text-muted-foreground hover:text-destructive h-8 w-8"
                             onClick={() => field.removeValue(index)}
                           >
                             <XIcon className="h-4 w-4" />
@@ -741,29 +832,32 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         </div>
                       ))}
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() =>
-                        field.pushValue({
-                          name: "",
-                          unitCost: 0,
-                          quantity: 1,
-                        })
-                      }
-                    >
-                      Add Material
-                    </Button>
                   </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() =>
+                      field.pushValue({
+                        name: "",
+                        unitCost: 0,
+                        quantity: 1,
+                      })
+                    }
+                  >
+                    Add Material
+                  </Button>
                 </Field>
               )}
             />
           </FieldGroup>
         </div>
+      </Card>
 
-        {/* Files Section */}
+      {/* Files & Images Card */}
+      <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Files & Images</h2>
           <FieldGroup className="pt-2">
@@ -772,7 +866,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               mode="array"
               children={(field) => (
                 <Field>
-                  <FieldLabel>Image URLs</FieldLabel>
+                  <FieldLabel className="flex items-center gap-1.5">
+                    Image URLs
+                    <InfoTooltip content="Add URLs for reference images to document the project" />
+                  </FieldLabel>
                   <FieldDescription>
                     Add URLs for reference images
                   </FieldDescription>
@@ -820,7 +917,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               mode="array"
               children={(field) => (
                 <Field>
-                  <FieldLabel>File URLs</FieldLabel>
+                  <FieldLabel className="flex items-center gap-1.5">
+                    File URLs
+                    <InfoTooltip content="Add URLs for 3D model files (STL, OBJ, etc.) used in this project" />
+                  </FieldLabel>
                   <FieldDescription>
                     Add URLs for 3D model files (STL, OBJ, etc.)
                   </FieldDescription>
@@ -864,8 +964,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
             />
           </FieldGroup>
         </div>
+      </Card>
 
-        {/* Advance Section */}
+      {/* Advanced Configurations Card */}
+      <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Advance configurations</h2>
@@ -894,7 +996,13 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>Country</FieldLabel>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Country
+                          <InfoTooltip content="Your location for regional cost calculations and currency" />
+                        </FieldLabel>
                         <Select
                           value={field.state.value}
                           onValueChange={(value) => field.handleChange(value)}
@@ -928,8 +1036,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Electricity Cost ({currency} / kWh):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Electricity Cost ({currency} / kWh)
+                          <InfoTooltip content="Your local electricity rate per kilowatt-hour for accurate energy cost calculations" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -956,8 +1068,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Printer Wattage (W):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Printer Wattage (W)
+                          <InfoTooltip content="Power consumption of your 3D printer in watts (check your printer specs)" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -984,8 +1100,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Machine Price ({currency}):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Machine Price ({currency})
+                          <InfoTooltip content="Original purchase price of your 3D printer for depreciation calculations" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -1012,8 +1132,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Machine Depreciation Rate (%):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Machine Depreciation Rate (%)
+                          <InfoTooltip content="Annual depreciation percentage for your printer (typically 10-20% per year)" />
                         </FieldLabel>
                         <Input
                           id={field.name}
@@ -1040,8 +1164,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
                           Machine Purchase Date
+                          <InfoTooltip content="When you purchased your printer, used to calculate accumulated depreciation" />
                         </FieldLabel>
                         <DatePicker
                           id={field.name}
@@ -1072,8 +1200,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Consumable Cost ({currency} / print):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Consumable Cost ({currency} / print)
+                          <InfoTooltip content="Cost of consumables like FEP film, nozzles, build plates, and cleaning supplies per print" />
                         </FieldLabel>
                         <FieldDescription>
                           Total cost of consumables used during the printing
@@ -1104,8 +1236,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Fail Rate (%):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Fail Rate (%)
+                          <InfoTooltip content="Expected percentage of failed prints to factor into pricing (covers material waste and reprints)" />
                         </FieldLabel>
                         <FieldDescription>
                           Out of 100 prints of the items how many do you expect
@@ -1136,8 +1272,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={field.name}>
-                          Hourly Labor Rate ({currency} / hour):
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Hourly Labor Rate ({currency} / hour)
+                          <InfoTooltip content="Your hourly rate for manual work like sanding, painting, support removal, and assembly" />
                         </FieldLabel>
                         <FieldDescription>
                           Your hourly rate for manual work like sanding,
@@ -1165,7 +1305,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
             </FieldGroup>
           )}
         </div>
-      </form>
-    </Card>
+      </Card>
+    </form>
   );
 }

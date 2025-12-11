@@ -122,7 +122,6 @@ export default function Calculator() {
       costPerKg: toNumOrZero(e.costPerKg),
       weight: toNumOrZero(e.weight),
     }));
-    console.log("copy ", copy.extraMaterials, value.extraMaterials);
 
     copy.consumableCost = toNumOrZero(copy.consumableCost);
     copy.removalTimeInMinutes = toNumOrZero(copy.removalTimeInMinutes);
@@ -135,18 +134,18 @@ export default function Calculator() {
   };
 
   return (
-    <div className="flex w-full gap-4 p-4">
+    <div className="mx-auto grid max-w-[900px] grid-cols-1 flex-wrap gap-4 md:grid-cols-2 md:px-6 lg:max-w-[1400px]">
       <div className="inputs flex w-full flex-col gap-4">
-        <CalculatorForm
-          onChange={handleFormChange}
-          className="p-4"
-        ></CalculatorForm>
+        <CalculatorForm onChange={handleFormChange}></CalculatorForm>
       </div>
 
       <div className="results sticky top-0 h-fit w-full self-start">
         <Card className="bg-gray-900">
           <CardHeader className="text-lg font-bold">
             Suggested Pricing
+            <CardDescription>
+              Select a margin option or set a custom margin
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <MarginOption
@@ -267,7 +266,7 @@ function MarginOption({
       )}
     >
       <Item className="p-4">
-        <ItemContent className="m-flex flex-row items-center">
+        <ItemContent className="flex flex-row items-center">
           <div className="flex items-center gap-3">
             {children}
 
