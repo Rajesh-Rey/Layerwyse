@@ -1,4 +1,12 @@
-import { nullable, z } from "zod";
+import { z } from "zod";
+
+export type UploadedFileData = {
+  id: string;
+  name: string;
+  size: number;
+  type: "image" | "model" | "other";
+  previewUrl?: string;
+};
 
 export type CogsBreakdown = {
   materials: number;
@@ -90,6 +98,7 @@ export const calculatorFormSchema = z.object({
   modelingDifficulty: z.string(),
   images: z.array(z.string()),
   files: z.array(z.string()),
+  uploadedFiles: z.array(z.custom<UploadedFileData>()),
   extraMaterials: z.array(extraMaterialSchema),
   materials: z.array(materialSchema),
 

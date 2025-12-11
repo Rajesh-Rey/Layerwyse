@@ -149,51 +149,51 @@ export default function Calculator() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <MarginOption
-              className="bg-red-500"
+              className="bg-gradient-to-br from-orange-950/60 via-orange-900/40 to-slate-800/60 hover:from-orange-950/80 hover:via-orange-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Competitive"}
               onClick={onMarginSelect}
               price={price(toNumOrZero(breakdown.total), competitiveMargin)}
               title="Competitive"
               margin={competitiveMargin}
             >
-              <ChartColumnDecreasing></ChartColumnDecreasing>
+              <ChartColumnDecreasing className="text-orange-400"></ChartColumnDecreasing>
             </MarginOption>
 
             <MarginOption
-              className="bg-blue-600"
+              className="bg-gradient-to-br from-sky-950/60 via-sky-900/40 to-slate-800/60 hover:from-sky-950/80 hover:via-sky-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Standard"}
               onClick={() => onMarginSelect("Standard")}
               price={price(toNumOrZero(breakdown.total), standardMargin)}
               title="Standard"
               margin={standardMargin}
             >
-              <Package></Package>
+              <Package className="text-sky-400"></Package>
             </MarginOption>
 
             <MarginOption
-              className="bg-amber-600"
+              className="bg-gradient-to-br from-violet-950/60 via-violet-900/40 to-slate-800/60 hover:from-violet-950/80 hover:via-violet-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Premium"}
               onClick={() => onMarginSelect("Premium")}
               price={price(toNumOrZero(breakdown.total), premiumMargin)}
               title="Premium"
               margin={premiumMargin}
             >
-              <Gem></Gem>
+              <Gem className="text-violet-400"></Gem>
             </MarginOption>
 
             <MarginOption
-              className="bg-green-800"
+              className="bg-gradient-to-br from-amber-950/60 via-amber-900/40 to-slate-800/60 hover:from-amber-950/80 hover:via-amber-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Luxury"}
               onClick={() => onMarginSelect("Luxury")}
               price={price(toNumOrZero(breakdown.total), luxuryMargin)}
               title="Luxury"
               margin={luxuryMargin}
             >
-              <Crown></Crown>
+              <Crown className="text-amber-400"></Crown>
             </MarginOption>
 
             <MarginOption
-              className="col-span-1 w-full bg-gray-600 sm:col-span-2"
+              className="col-span-1 w-full bg-gradient-to-br from-emerald-950/50 via-emerald-900/30 to-slate-800/50 hover:from-emerald-950/70 hover:via-emerald-900/50 hover:to-slate-800/70 sm:col-span-2"
               variant="custom"
               selected={selectedMargin === "Custom"}
               onClick={() => onMarginSelect("Custom")}
@@ -204,7 +204,7 @@ export default function Calculator() {
               }}
               margin={margin}
             >
-              <TvIcon></TvIcon>
+              <TvIcon className="text-emerald-400"></TvIcon>
             </MarginOption>
 
             <div className="col-span-1 mt-4 flex w-full justify-between bg-gray-900 text-3xl sm:col-span-2">
@@ -256,6 +256,9 @@ function MarginOption({
   onChange?: (value: number) => void;
   className?: string;
 }) {
+  const isCustom = variant === "custom";
+  const showDetails = isCustom ? selected : true;
+
   return (
     <div
       onClick={() => onClick && onClick(title)}
@@ -272,17 +275,21 @@ function MarginOption({
 
             <div className="">
               <ItemTitle>{title}</ItemTitle>
-              <ItemDescription>{margin} % profit margin</ItemDescription>
+              {showDetails && (
+                <ItemDescription>{margin} % profit margin</ItemDescription>
+              )}
             </div>
           </div>
         </ItemContent>
-        <ItemActions className="items-center">
-          <div className="text-lg">
-            {price?.toFixed(3)} {currency}
-          </div>
-        </ItemActions>
+        {showDetails && (
+          <ItemActions className="items-center">
+            <div className="text-lg">
+              {price?.toFixed(3)} {currency}
+            </div>
+          </ItemActions>
+        )}
       </Item>
-      {variant == "custom" && (
+      {isCustom && selected && (
         <div className="mb-4 flex gap-2 pr-4 pl-4">
           <Slider
             max={100}

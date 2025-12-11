@@ -5,11 +5,13 @@ import {
   DifficultyLevel,
   Material,
   ExtraMaterial,
+  UploadedFileData,
 } from "./types";
 import { XIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FileDropZone, type FileData } from "@/components/ui/file-drop-zone";
 import {
   FieldGroup,
   Field,
@@ -114,6 +116,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       modelingDifficulty: "none",
       images: [] as string[],
       files: [] as string[],
+      uploadedFiles: [] as UploadedFileData[],
       extraMaterials: [] as ExtraMaterial[],
       materials: [
         { material: "standardResin", costPerKg: defaultResinCost, weight: 0 },
@@ -153,6 +156,28 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       }}
       className={cn(className, "space-y-4")}
     >
+      {/* Files & Images Card */}
+      <Card className="bg-gray-900 p-6">
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Files & Images</h2>
+          <p className="text-muted-foreground text-sm">
+            Upload your 3D model files and reference images. We&apos;ll
+            automatically organize them for you.
+          </p>
+          <form.Field
+            name="uploadedFiles"
+            mode="array"
+            children={(field) => (
+              <FileDropZone
+                value={field.state.value as FileData[]}
+                onChange={(fileData) => {
+                  field.setValue(fileData as UploadedFileData[]);
+                }}
+              />
+            )}
+          />
+        </div>
+      </Card>
       {/* Project Details Card */}
       <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
@@ -849,116 +874,6 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                   >
                     Add Material
                   </Button>
-                </Field>
-              )}
-            />
-          </FieldGroup>
-        </div>
-      </Card>
-
-      {/* Files & Images Card */}
-      <Card className="bg-gray-900 p-6">
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Files & Images</h2>
-          <FieldGroup className="pt-2">
-            <form.Field
-              name="images"
-              mode="array"
-              children={(field) => (
-                <Field>
-                  <FieldLabel className="flex items-center gap-1.5">
-                    Image URLs
-                    <InfoTooltip content="Add URLs for reference images to document the project" />
-                  </FieldLabel>
-                  <FieldDescription>
-                    Add URLs for reference images
-                  </FieldDescription>
-                  <div className="space-y-2">
-                    {field.state.value.map((_, index) => (
-                      <div key={index} className="flex gap-2">
-                        <form.Field
-                          name={`images[${index}]`}
-                          children={(subField) => (
-                            <Input
-                              value={subField.state.value}
-                              onChange={(e) =>
-                                subField.handleChange(e.target.value)
-                              }
-                              placeholder="https://example.com/image.jpg"
-                              className="flex-1"
-                            />
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => field.removeValue(index)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.pushValue("")}
-                    >
-                      Add Image URL
-                    </Button>
-                  </div>
-                </Field>
-              )}
-            />
-
-            <form.Field
-              name="files"
-              mode="array"
-              children={(field) => (
-                <Field>
-                  <FieldLabel className="flex items-center gap-1.5">
-                    File URLs
-                    <InfoTooltip content="Add URLs for 3D model files (STL, OBJ, etc.) used in this project" />
-                  </FieldLabel>
-                  <FieldDescription>
-                    Add URLs for 3D model files (STL, OBJ, etc.)
-                  </FieldDescription>
-                  <div className="space-y-2">
-                    {field.state.value.map((_, index) => (
-                      <div key={index} className="flex gap-2">
-                        <form.Field
-                          name={`files[${index}]`}
-                          children={(subField) => (
-                            <Input
-                              value={subField.state.value}
-                              onChange={(e) =>
-                                subField.handleChange(e.target.value)
-                              }
-                              placeholder="https://example.com/model.stl"
-                              className="flex-1"
-                            />
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => field.removeValue(index)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.pushValue("")}
-                    >
-                      Add File URL
-                    </Button>
-                  </div>
                 </Field>
               )}
             />
