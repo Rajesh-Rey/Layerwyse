@@ -35,8 +35,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { useCurrency } from "./currency-context";
 
-const currency = "KWD";
 const defaultResinCost = 11;
 const allowMultipleMaterials = false;
 
@@ -92,6 +92,7 @@ type CalculatorFormProps = {
 };
 
 export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
+  const { currency } = useCurrency();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const form = useForm({
@@ -763,7 +764,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       {/* Extra Materials Card */}
       <Card className="bg-gray-900 p-6">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Extra Materials</h2>
+          <h2 className="text-lg font-semibold">Extras</h2>
           <FieldGroup className="pt-2">
             <form.Field
               name="extraMaterials"
@@ -771,8 +772,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               children={(field) => (
                 <Field>
                   <FieldDescription>
-                    Add extra materials used in this project (e.g., magnets,
-                    keychain rings, metal inserts)
+                    Add paid assets and non-print components (e.g., licensed 3D files, decals, magnets, inserts)
                   </FieldDescription>
                   <div className="rounded-lg border">
                     <div className="space-y-2">

@@ -5,6 +5,7 @@ import { CalculatorForm } from "./calculatorForm";
 import { computeTotal } from "./formulas";
 import { useState } from "react";
 import { Breakdown, CalculatorFormValues, extraMaterialSchema } from "./types";
+import { useCurrency } from "./currency-context";
 import {
   Card,
   CardContent,
@@ -34,6 +35,7 @@ import {
   TrendingUp,
   DollarSign,
   Calculator as CalculatorIcon,
+  PieChart as PieChartIcon,
 } from "lucide-react";
 import {
   Item,
@@ -55,8 +57,6 @@ import {
 } from "@/components/ui/chart";
 import { Pie, PieChart } from "recharts";
 
-const currency = "KWD";
-
 function calcPrice(cost: number, margin: number) {
   return cost + (cost * margin) / 100;
 }
@@ -65,6 +65,7 @@ function profit(price: number, cost: number) {
 }
 
 export default function Calculator({ className }: { className?: string }) {
+  const { currency } = useCurrency();
   const [breakdown, setBreakdown] = useState<Breakdown>({
     cogs: {
       materials: 0,
@@ -166,6 +167,7 @@ export default function Calculator({ className }: { className?: string }) {
               price={calcPrice(toNumOrZero(breakdown.total), competitiveMargin)}
               title="Competitive"
               margin={competitiveMargin}
+              currency={currency}
             >
               <ChartColumnDecreasing className="text-orange-400"></ChartColumnDecreasing>
             </MarginOption>
@@ -177,6 +179,7 @@ export default function Calculator({ className }: { className?: string }) {
               price={calcPrice(toNumOrZero(breakdown.total), standardMargin)}
               title="Standard"
               margin={standardMargin}
+              currency={currency}
             >
               <Package className="text-sky-400"></Package>
             </MarginOption>
@@ -188,6 +191,7 @@ export default function Calculator({ className }: { className?: string }) {
               price={calcPrice(toNumOrZero(breakdown.total), premiumMargin)}
               title="Premium"
               margin={premiumMargin}
+              currency={currency}
             >
               <Gem className="text-violet-400"></Gem>
             </MarginOption>
@@ -199,6 +203,7 @@ export default function Calculator({ className }: { className?: string }) {
               price={calcPrice(toNumOrZero(breakdown.total), luxuryMargin)}
               title="Luxury"
               margin={luxuryMargin}
+              currency={currency}
             >
               <Crown className="text-amber-400"></Crown>
             </MarginOption>
@@ -215,6 +220,7 @@ export default function Calculator({ className }: { className?: string }) {
                 setCustomMargin(value);
               }}
               margin={customMargin}
+              currency={currency}
             >
               <TvIcon className="text-emerald-400"></TvIcon>
             </MarginOption>
@@ -229,8 +235,7 @@ export default function Calculator({ className }: { className?: string }) {
           selectedPrice={calcPrice(toNumOrZero(breakdown.total), margin)}
         />
         {/*<Preview3d />*/}
-        <CostsBreakdown className="mt-4" breakdown={breakdown} />
-        <ChartPieLegend className="mt-4" breakdown={breakdown}></ChartPieLegend>
+        <MergedCostBreakdown className="mt-4" breakdown={breakdown} />
       </div>
     </div>
   );
@@ -246,6 +251,7 @@ function MarginOption({
   onClick,
   className,
   onChange,
+  currency,
 }: {
   title: string;
   margin: number;
@@ -256,6 +262,7 @@ function MarginOption({
   onClick?: (title: string) => void;
   onChange?: (value: number) => void;
   className?: string;
+  currency: string;
 }) {
   const isCustom = variant === "custom";
   const showDetails = isCustom ? selected : true;
@@ -324,6 +331,7 @@ function PriceSummaryCard({
   margin: number;
   selectedPrice: number;
 }) {
+  const { currency } = useCurrency();
   const profitAmount = profit(selectedPrice, totalCost);
   const profitPercentage = totalCost > 0 ? (profitAmount / totalCost) * 100 : 0;
   const isProfitable = profitAmount > 0;
@@ -403,6 +411,7 @@ type CostLineItemProps = {
 };
 
 function CostLineItem({ label, value, show = true }: CostLineItemProps) {
+  const { currency } = useCurrency();
   if (!show || value <= 0) return null;
 
   return (
@@ -415,128 +424,8 @@ function CostLineItem({ label, value, show = true }: CostLineItemProps) {
   );
 }
 
-function CostsBreakdown({ className, breakdown }: SummaryProps) {
-  const profit = breakdown.price - breakdown.total;
-  const profitMargin =
-    breakdown.price > 0 ? (profit / breakdown.price) * 100 : 0;
-
-  const hasCOGSDetails =
-    breakdown.cogs.materials > 0 ||
-    breakdown.cogs.extraMaterials > 0 ||
-    breakdown.cogs.painting > 0 ||
-    breakdown.cogs.sanding > 0 ||
-    breakdown.cogs.printingLabor > 0;
-
-  const hasFixedCostsDetails =
-    breakdown.fixedCosts.support > 0 ||
-    breakdown.fixedCosts.modeling > 0 ||
-    breakdown.fixedCosts.electricity > 0 ||
-    breakdown.fixedCosts.rent > 0;
-
-  return (
-    <Card className={cn("flex flex-col gap-5 bg-gray-900", className)}>
-      <CardHeader className="text-lg font-bold">Project Breakdown</CardHeader>
-      <CardContent>
-        <Accordion
-          type="multiple"
-          className="w-full"
-          defaultValue={["cogs", "fixed"]}
-        >
-          {/* COGS Section */}
-          <AccordionItem value="cogs" className="border-b-0">
-            <AccordionTrigger className="py-3 hover:no-underline">
-              <div className="flex w-full items-center justify-between pr-2">
-                <span className="font-medium">Cost of Goods Sold</span>
-                <span className="text-accent tabular-nums">
-                  {breakdown.cogs.total.toFixed(3)} {currency}
-                </span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              {hasCOGSDetails ? (
-                <div className="bg-muted/50 rounded-lg px-4 py-2">
-                  <CostLineItem
-                    label="Material"
-                    value={breakdown.cogs.materials}
-                  />
-                  <CostLineItem
-                    label="Extra Materials"
-                    value={breakdown.cogs.extraMaterials}
-                  />
-                  <CostLineItem
-                    label="Painting"
-                    value={breakdown.cogs.painting}
-                  />
-                  <CostLineItem
-                    label="Sanding"
-                    value={breakdown.cogs.sanding}
-                  />
-                  <CostLineItem
-                    label="Printing Labor"
-                    value={breakdown.cogs.printingLabor}
-                  />
-                </div>
-              ) : (
-                <p className="text-muted-foreground py-2 text-sm">
-                  No COGS items yet. Fill in the form to see the breakdown.
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-
-          <Separator />
-
-          {/* Operating Costs Section */}
-          <AccordionItem value="fixed" className="border-b-0">
-            <AccordionTrigger className="py-3 hover:no-underline">
-              <div className="flex w-full items-center justify-between pr-2">
-                <span className="font-medium">Operating Costs</span>
-                <span className="text-accent tabular-nums">
-                  {breakdown.fixedCosts.total.toFixed(3)} {currency}
-                </span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              {hasFixedCostsDetails ? (
-                <div className="bg-muted/50 rounded-lg px-4 py-2">
-                  <CostLineItem
-                    label="Support"
-                    value={breakdown.fixedCosts.support}
-                  />
-                  <CostLineItem
-                    label="Modeling"
-                    value={breakdown.fixedCosts.modeling}
-                  />
-                  <CostLineItem
-                    label="Rent"
-                    value={breakdown.fixedCosts.rent}
-                  />
-
-                  <CostLineItem
-                    label="Electricity"
-                    value={breakdown.fixedCosts.electricity}
-                  />
-                </div>
-              ) : (
-                <p className="text-muted-foreground py-2 text-sm">
-                  No fixed costs yet. Fill in the form to see the breakdown.
-                </p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ChartPieLegend({
-  breakdown,
-  className,
-}: {
-  breakdown: Breakdown;
-  className: string;
-}) {
+function MergedCostBreakdown({ className, breakdown }: SummaryProps) {
+  const { currency } = useCurrency();
   const chartConfig = {
     value: {
       label: "Value",
@@ -547,7 +436,7 @@ function ChartPieLegend({
       color: "var(--chart-1)",
     },
     extraMaterials: {
-      label: "Extra Materials",
+      label: "Extra Parts",
       color: "var(--chart-2)",
     },
     painting: {
@@ -559,7 +448,7 @@ function ChartPieLegend({
       color: "var(--chart-4)",
     },
     printingLabor: {
-      label: "Printing Labor",
+      label: "Printing Time",
       color: "var(--chart-5)",
     },
     electricity: {
@@ -567,11 +456,11 @@ function ChartPieLegend({
       color: "var(--chart-6)",
     },
     support: {
-      label: "Support",
+      label: "Support Removal",
       color: "var(--chart-7)",
     },
     modeling: {
-      label: "Modeling",
+      label: "3D Modeling",
       color: "var(--chart-8)",
     },
     rent: {
@@ -581,8 +470,8 @@ function ChartPieLegend({
   } satisfies ChartConfig;
 
   const chartData: { cost: string; value: number; fill: string }[] = [];
+  const allCosts: { label: string; value: number; category: string }[] = [];
 
-  // Add COGS data (excluding total)
   for (const [key, value] of Object.entries(breakdown.cogs)) {
     if (key !== "total" && value > 0) {
       const configKey = key as keyof typeof chartConfig;
@@ -591,10 +480,14 @@ function ChartPieLegend({
         value: value,
         fill: chartConfig[configKey].color,
       });
+      allCosts.push({
+        label: chartConfig[configKey].label,
+        value: value,
+        category: "COGS",
+      });
     }
   }
 
-  // Add fixed costs data (excluding total)
   for (const [key, value] of Object.entries(breakdown.fixedCosts)) {
     const configKey = key as keyof typeof chartConfig;
     if (key !== "total" && value > 0) {
@@ -603,31 +496,149 @@ function ChartPieLegend({
         value: value,
         fill: chartConfig[configKey].color,
       });
+      allCosts.push({
+        label: chartConfig[configKey].label,
+        value: value,
+        category: "Operating",
+      });
     }
   }
 
+  const hasData = chartData.length > 0;
+  const totalCost = breakdown.cogs.total + breakdown.fixedCosts.total;
+
   return (
     <Card className={cn("bg-gray-900", className)}>
-      <CardHeader className="items-center pb-0">
+      <CardHeader>
         <CardTitle>Cost Breakdown</CardTitle>
-        <CardDescription>Distribution of costs</CardDescription>
+        <CardDescription>Visual distribution of project costs</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-[16/9] max-h-[300px]"
-        >
-          <PieChart layout="horizontal">
-            <Pie data={chartData} dataKey="value" nameKey="cost" />
-            <ChartLegend
-              content={<ChartLegendContent nameKey="cost" />}
-              layout="vertical"
-              verticalAlign="middle"
-              align="right"
-              className="flex-col gap-2 *:justify-start"
-            />
-          </PieChart>
-        </ChartContainer>
+      <CardContent className="space-y-6">
+        {hasData ? (
+          <>
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[400px] w-full"
+            >
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="cost"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                />
+                <ChartLegend
+                  content={<ChartLegendContent nameKey="cost" />}
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
+                  className="flex-col gap-2 *:justify-start"
+                />
+              </PieChart>
+            </ChartContainer>
+
+            <Accordion
+              type="multiple"
+              className="w-full"
+              defaultValue={["cogs", "fixed"]}
+            >
+              <AccordionItem value="cogs" className="border-b-0">
+                <AccordionTrigger className="py-3 hover:no-underline">
+                  <div className="flex w-full items-center justify-between pr-2">
+                    <span className="font-medium">Materials & Labor</span>
+                    <span className="text-accent tabular-nums">
+                      {breakdown.cogs.total.toFixed(3)} {currency}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {breakdown.cogs.total > 0 ? (
+                    <div className="bg-muted/50 rounded-lg px-4 py-2">
+                      <CostLineItem
+                        label="Materials"
+                        value={breakdown.cogs.materials}
+                      />
+                      <CostLineItem
+                        label="Extra Parts"
+                        value={breakdown.cogs.extraMaterials}
+                      />
+                      <CostLineItem
+                        label="Painting"
+                        value={breakdown.cogs.painting}
+                      />
+                      <CostLineItem
+                        label="Sanding"
+                        value={breakdown.cogs.sanding}
+                      />
+                      <CostLineItem
+                        label="Printing Time"
+                        value={breakdown.cogs.printingLabor}
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground py-2 text-sm">
+                      No materials or labor costs yet. Fill in the form to see
+                      the breakdown.
+                    </p>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+
+              <Separator />
+
+              <AccordionItem value="fixed" className="border-b-0">
+                <AccordionTrigger className="py-3 hover:no-underline">
+                  <div className="flex w-full items-center justify-between pr-2">
+                    <span className="font-medium">Business Costs</span>
+                    <span className="text-accent tabular-nums">
+                      {breakdown.fixedCosts.total.toFixed(3)} {currency}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {breakdown.fixedCosts.total > 0 ? (
+                    <div className="bg-muted/50 rounded-lg px-4 py-2">
+                      <CostLineItem
+                        label="Support Removal"
+                        value={breakdown.fixedCosts.support}
+                      />
+                      <CostLineItem
+                        label="3D Modeling"
+                        value={breakdown.fixedCosts.modeling}
+                      />
+                      <CostLineItem
+                        label="Rent"
+                        value={breakdown.fixedCosts.rent}
+                      />
+                      <CostLineItem
+                        label="Electricity"
+                        value={breakdown.fixedCosts.electricity}
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground py-2 text-sm">
+                      No business costs yet. Fill in the form to see the
+                      breakdown.
+                    </p>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-800/50">
+              <PieChartIcon className="text-muted-foreground h-8 w-8" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold">No cost data yet</h3>
+            <p className="text-muted-foreground max-w-sm text-sm">
+              Enter your project details in the form to see a visual breakdown
+              of your costs
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
