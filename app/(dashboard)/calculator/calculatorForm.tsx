@@ -143,9 +143,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       },
     },
     validators: { onBlur: calculatorFormSchema },
-    onSubmit: ({ value }) => {
-      console.log("submitted", JSON.stringify(value, null, 2));
-    },
+    onSubmit: ({ value }) => {},
   });
 
   return (
@@ -772,7 +770,8 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
               children={(field) => (
                 <Field>
                   <FieldDescription>
-                    Add paid assets and non-print components (e.g., licensed 3D files, decals, magnets, inserts)
+                    Add paid assets and non-print components (e.g., licensed 3D
+                    files, decals, magnets, inserts)
                   </FieldDescription>
                   <div className="rounded-lg border">
                     <div className="space-y-2">

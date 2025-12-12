@@ -11,6 +11,7 @@ import {
   File,
   Cuboid,
 } from "lucide-react";
+import { useGlobalFileDropOptional } from "./global-file-drop";
 
 // File type definitions
 const IMAGE_EXTENSIONS = [
@@ -92,6 +93,7 @@ function FileDropZone({
   const [internalFiles, setInternalFiles] = React.useState<UploadedFile[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const initializedRef = React.useRef(false);
+  const globalFileDrop = useGlobalFileDropOptional();
 
   // Sync internal state with external value on mount
   React.useEffect(() => {
@@ -213,6 +215,23 @@ function FileDropZone({
     },
     [processFiles],
   );
+
+  // Store latest processFiles in a ref to avoid re-registration
+  const processFilesRef = React.useRef(processFiles);
+  React.useEffect(() => {
+    processFilesRef.current = processFiles;
+  }, [processFiles]);
+
+  // Register with global file drop handler (only once)
+  React.useEffect(() => {
+    if (!globalFileDrop || disabled) return;
+    
+    const unregister = globalFileDrop.registerFileHandler((files: FileList) => {
+      processFilesRef.current(files);
+    });
+    
+    return unregister;
+  }, [globalFileDrop, disabled]);
 
   const handleRemoveFile = React.useCallback(
     (id: string) => {

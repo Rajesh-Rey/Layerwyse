@@ -7,7 +7,6 @@ import {
 } from "./types";
 
 export function computeTotal(v: CalculatorFormValues): Breakdown {
-  console.log("raw values", v);
   let extraSum = 0;
   for (const m of v.extraMaterials) {
     extraSum += m.unitCost * m.quantity;
@@ -64,7 +63,6 @@ export function computeTotal(v: CalculatorFormValues): Breakdown {
     printingLabor: printingLaborCost,
     total: cogsTotal,
   };
-  console.log("cogs", cogs);
 
   const costPerWat = v.electricityCost / 1000;
   const printerElectricalCost = v.printerWattage * v.printTime * costPerWat;
