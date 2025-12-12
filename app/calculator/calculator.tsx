@@ -53,7 +53,7 @@ import {
 import { Pie, PieChart } from "recharts";
 
 const currency = "KWD";
-export default function Calculator() {
+export default function Calculator({ className }: { className?: string }) {
   const [breakdown, setBreakdown] = useState<Breakdown>({
     cogs: {
       materials: 0,
@@ -134,7 +134,12 @@ export default function Calculator() {
   };
 
   return (
-    <div className="mx-auto grid max-w-[900px] grid-cols-1 flex-wrap gap-4 md:grid-cols-2 md:px-6 lg:max-w-[1400px]">
+    <div
+      className={cn(
+        "grid max-w-[900px] grid-cols-1 flex-wrap gap-4 md:grid-cols-2 lg:max-w-[1400px]",
+        className,
+      )}
+    >
       <div className="inputs flex w-full flex-col gap-4">
         <CalculatorForm onChange={handleFormChange}></CalculatorForm>
       </div>
@@ -228,8 +233,8 @@ export default function Calculator() {
           <CardFooter></CardFooter>
         </Card>
         {/*<Preview3d />*/}
-        <CostsBreakdown className="mt-7" breakdown={breakdown} />
-        <ChartPieLegend className="mt-7" breakdown={breakdown}></ChartPieLegend>
+        <CostsBreakdown className="mt-4" breakdown={breakdown} />
+        <ChartPieLegend className="mt-4" breakdown={breakdown}></ChartPieLegend>
       </div>
     </div>
   );
