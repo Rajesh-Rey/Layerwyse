@@ -333,7 +333,6 @@ function PriceSummaryCard({
 }) {
   const { currency } = useCurrency();
   const profitAmount = profit(selectedPrice, totalCost);
-  const profitPercentage = totalCost > 0 ? (profitAmount / totalCost) * 100 : 0;
   const isProfitable = profitAmount > 0;
 
   return (
@@ -390,7 +389,7 @@ function PriceSummaryCard({
               {profitAmount.toFixed(3)} {currency}
             </div>
             <div className="text-muted-foreground text-xs">
-              {profitPercentage.toFixed(1)}% margin
+              {margin}% margin
             </div>
           </div>
         </div>
