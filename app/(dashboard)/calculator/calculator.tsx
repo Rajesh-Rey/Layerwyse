@@ -31,6 +31,9 @@ import {
   Icon,
   Package,
   TvIcon,
+  TrendingUp,
+  DollarSign,
+  Calculator as CalculatorIcon,
 } from "lucide-react";
 import {
   Item,
@@ -53,6 +56,14 @@ import {
 import { Pie, PieChart } from "recharts";
 
 const currency = "KWD";
+
+function calcPrice(cost: number, margin: number) {
+  return cost + (cost * margin) / 100;
+}
+function profit(price: number, cost: number) {
+  return price - cost;
+}
+
 export default function Calculator({ className }: { className?: string }) {
   const [breakdown, setBreakdown] = useState<Breakdown>({
     cogs: {
@@ -77,18 +88,12 @@ export default function Calculator({ className }: { className?: string }) {
 
   const [selectedMargin, setSelectedMargin] = useState<string>("Standard");
   const [margin, setMargin] = useState<number>(30);
+  const [customMargin, setCustomMargin] = useState<number>(30);
 
   const competitiveMargin = 25;
   const standardMargin = 30;
   const premiumMargin = 80;
   const luxuryMargin = 100;
-
-  function price(price: number, margin: number) {
-    return price + (price * margin) / 100;
-  }
-  function profit(price: number, cost: number) {
-    return price - cost;
-  }
 
   const handleFormChange = (value: CalculatorFormValues) => {
     // check for removed services so they are not included in the calculation
@@ -129,14 +134,15 @@ export default function Calculator({ className }: { className?: string }) {
     setBreakdown(computeTotal(copy));
   };
 
-  const onMarginSelect = (margin: string) => {
+  const onMarginSelect = (margin: string, marginAmount: number) => {
+    setMargin(marginAmount);
     setSelectedMargin(margin);
   };
 
   return (
     <div
       className={cn(
-        "grid max-w-[900px] grid-cols-1 flex-wrap gap-4 md:grid-cols-2 lg:max-w-[1400px]",
+        "grid max-w-[900px] grid-cols-1 gap-4 md:grid-cols-2 lg:max-w-[1400px]",
         className,
       )}
     >
@@ -156,8 +162,8 @@ export default function Calculator({ className }: { className?: string }) {
             <MarginOption
               className="bg-gradient-to-br from-orange-950/60 via-orange-900/40 to-slate-800/60 hover:from-orange-950/80 hover:via-orange-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Competitive"}
-              onClick={onMarginSelect}
-              price={price(toNumOrZero(breakdown.total), competitiveMargin)}
+              onClick={() => onMarginSelect("Competitive", competitiveMargin)}
+              price={calcPrice(toNumOrZero(breakdown.total), competitiveMargin)}
               title="Competitive"
               margin={competitiveMargin}
             >
@@ -167,8 +173,8 @@ export default function Calculator({ className }: { className?: string }) {
             <MarginOption
               className="bg-gradient-to-br from-sky-950/60 via-sky-900/40 to-slate-800/60 hover:from-sky-950/80 hover:via-sky-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Standard"}
-              onClick={() => onMarginSelect("Standard")}
-              price={price(toNumOrZero(breakdown.total), standardMargin)}
+              onClick={() => onMarginSelect("Standard", standardMargin)}
+              price={calcPrice(toNumOrZero(breakdown.total), standardMargin)}
               title="Standard"
               margin={standardMargin}
             >
@@ -178,8 +184,8 @@ export default function Calculator({ className }: { className?: string }) {
             <MarginOption
               className="bg-gradient-to-br from-violet-950/60 via-violet-900/40 to-slate-800/60 hover:from-violet-950/80 hover:via-violet-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Premium"}
-              onClick={() => onMarginSelect("Premium")}
-              price={price(toNumOrZero(breakdown.total), premiumMargin)}
+              onClick={() => onMarginSelect("Premium", premiumMargin)}
+              price={calcPrice(toNumOrZero(breakdown.total), premiumMargin)}
               title="Premium"
               margin={premiumMargin}
             >
@@ -189,8 +195,8 @@ export default function Calculator({ className }: { className?: string }) {
             <MarginOption
               className="bg-gradient-to-br from-amber-950/60 via-amber-900/40 to-slate-800/60 hover:from-amber-950/80 hover:via-amber-900/60 hover:to-slate-800/80"
               selected={selectedMargin === "Luxury"}
-              onClick={() => onMarginSelect("Luxury")}
-              price={price(toNumOrZero(breakdown.total), luxuryMargin)}
+              onClick={() => onMarginSelect("Luxury", luxuryMargin)}
+              price={calcPrice(toNumOrZero(breakdown.total), luxuryMargin)}
               title="Luxury"
               margin={luxuryMargin}
             >
@@ -201,37 +207,27 @@ export default function Calculator({ className }: { className?: string }) {
               className="col-span-1 w-full bg-gradient-to-br from-emerald-950/50 via-emerald-900/30 to-slate-800/50 hover:from-emerald-950/70 hover:via-emerald-900/50 hover:to-slate-800/70 sm:col-span-2"
               variant="custom"
               selected={selectedMargin === "Custom"}
-              onClick={() => onMarginSelect("Custom")}
-              price={price(toNumOrZero(breakdown.total), margin)}
+              onClick={() => setSelectedMargin("Custom")}
+              price={calcPrice(toNumOrZero(breakdown.total), customMargin)}
               title="Custom"
               onChange={(value) => {
                 setMargin(value);
+                setCustomMargin(value);
               }}
-              margin={margin}
+              margin={customMargin}
             >
               <TvIcon className="text-emerald-400"></TvIcon>
             </MarginOption>
-
-            <div className="col-span-1 mt-4 flex w-full justify-between bg-gray-900 text-3xl sm:col-span-2">
-              <div className="font-bold">Profit </div>
-              <div
-                className={cn(
-                  "",
-                  profit(price(breakdown.total, margin), breakdown.total) > 0
-                    ? "text-green-500"
-                    : "text-red-500",
-                )}
-              >
-                {profit(
-                  price(breakdown.total, margin),
-                  breakdown.total,
-                ).toFixed(3)}{" "}
-                {currency}
-              </div>
-            </div>
           </CardContent>
           <CardFooter></CardFooter>
         </Card>
+
+        <PriceSummaryCard
+          className="mt-4"
+          totalCost={breakdown.total}
+          margin={margin}
+          selectedPrice={calcPrice(toNumOrZero(breakdown.total), margin)}
+        />
         {/*<Preview3d />*/}
         <CostsBreakdown className="mt-4" breakdown={breakdown} />
         <ChartPieLegend className="mt-4" breakdown={breakdown}></ChartPieLegend>
@@ -269,11 +265,11 @@ function MarginOption({
       onClick={() => onClick && onClick(title)}
       className={cn(
         className,
-        "flex flex-col rounded-xl",
-        selected && "border-4 border-blue-400",
+        "flex flex-col rounded-xl border-4 border-transparent bg-clip-padding",
+        selected && "border-blue-400",
       )}
     >
-      <Item className="p-4">
+      <Item className="">
         <ItemContent className="flex flex-row items-center">
           <div className="flex items-center gap-3">
             {children}
@@ -315,6 +311,84 @@ function MarginOption({
 }
 function Preview3d() {
   return <div className="h-[500] w-full bg-gray-500">3d preview</div>;
+}
+
+function PriceSummaryCard({
+  className,
+  totalCost,
+  margin,
+  selectedPrice,
+}: {
+  className?: string;
+  totalCost: number;
+  margin: number;
+  selectedPrice: number;
+}) {
+  const profitAmount = profit(selectedPrice, totalCost);
+  const profitPercentage = totalCost > 0 ? (profitAmount / totalCost) * 100 : 0;
+  const isProfitable = profitAmount > 0;
+
+  return (
+    <Card className={cn("bg-gray-900", className)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CalculatorIcon className="h-5 w-5" />
+          Financial Summary
+        </CardTitle>
+        <CardDescription>Price breakdown for selected margin</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="flex flex-col gap-2 rounded-lg border border-blue-500/20 bg-blue-950/20 p-4">
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <DollarSign className="h-4 w-4" />
+              <span>Price</span>
+            </div>
+            <div className="text-2xl font-bold text-blue-400">
+              {selectedPrice.toFixed(3)} {currency}
+            </div>
+            <div className="text-muted-foreground text-xs">Customer pays</div>
+          </div>
+
+          <div className="flex flex-col gap-2 rounded-lg border border-gray-500/20 bg-gray-800/20 p-4">
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <CalculatorIcon className="h-4 w-4" />
+              <span>Cost</span>
+            </div>
+            <div className="text-2xl font-bold text-gray-300">
+              {totalCost.toFixed(3)} {currency}
+            </div>
+            <div className="text-muted-foreground text-xs">Total expenses</div>
+          </div>
+
+          <div
+            className={cn(
+              "flex flex-col gap-2 rounded-lg border p-4",
+              isProfitable
+                ? "border-green-500/20 bg-green-950/20"
+                : "border-red-500/20 bg-red-950/20",
+            )}
+          >
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <TrendingUp className="h-4 w-4" />
+              <span>Profit</span>
+            </div>
+            <div
+              className={cn(
+                "text-2xl font-bold",
+                isProfitable ? "text-green-400" : "text-red-400",
+              )}
+            >
+              {profitAmount.toFixed(3)} {currency}
+            </div>
+            <div className="text-muted-foreground text-xs">
+              {profitPercentage.toFixed(1)}% margin
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 type SummaryProps = {
@@ -466,6 +540,7 @@ function ChartPieLegend({
   const chartConfig = {
     value: {
       label: "Value",
+      color: "",
     },
     materials: {
       label: "Materials",
@@ -514,18 +589,19 @@ function ChartPieLegend({
       chartData.push({
         cost: key,
         value: value,
-        fill: `var(--color-${key})`,
+        fill: chartConfig[configKey].color,
       });
     }
   }
 
   // Add fixed costs data (excluding total)
   for (const [key, value] of Object.entries(breakdown.fixedCosts)) {
+    const configKey = key as keyof typeof chartConfig;
     if (key !== "total" && value > 0) {
       chartData.push({
         cost: key,
         value: value,
-        fill: `var(--color-${key})`,
+        fill: chartConfig[configKey].color,
       });
     }
   }

@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Montserrat } from "next/font/google";
 import { getUser, getTeamForUser } from "@/lib/db/queries";
 import { SWRConfig } from "swr";
 
@@ -14,6 +14,7 @@ export const viewport: Viewport = {
 };
 
 const manrope = Manrope({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
 
 export default function RootLayout({
   children,
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark bg-background ${manrope.className}`}>
+    <html lang="en" className={`dark bg-background ${manrope.className} ${montserrat.variable}`}>
       <body className="">
         <SWRConfig
           value={{

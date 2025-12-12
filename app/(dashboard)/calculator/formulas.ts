@@ -97,7 +97,7 @@ export function computeTotal(v: CalculatorFormValues): Breakdown {
     fixedCosts,
     total,
     suggestedPrice,
-    price: v.price,
+    price: suggestedPrice,
   };
 }
 
