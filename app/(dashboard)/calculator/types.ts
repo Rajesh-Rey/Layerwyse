@@ -63,16 +63,16 @@ export type CategoryPrices = {
 };
 
 export const extraMaterialSchema = z.object({
-  name: z.string().min(1, "Material name is required"),
-  unitCost: z.number().min(0, "Unit price must be positive"),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
+  name: z.string().min(0, "Material name is required"),
+  unitCost: z.coerce.number().min(0, "Unit price must be positive"),
+  quantity: z.coerce.number().min(0, "Quantity must be at least 1"),
 });
 export type ExtraMaterial = z.infer<typeof extraMaterialSchema>;
 
 export const materialSchema = z.object({
-  material: z.string().min(1, "Material name is required"),
-  costPerKg: z.number().min(0, "Cost must be positive"),
-  weight: z.number().min(1, "Weight must be positive"),
+  material: z.string().min(0, "Material name is required"),
+  costPerKg: z.coerce.number().min(0, "Cost must be positive"),
+  weight: z.coerce.number().min(0, "Weight must be positive"),
 });
 
 export type Material = z.infer<typeof materialSchema>;
@@ -83,15 +83,16 @@ export const calculatorFormSchema = z.object({
   category: z.string(),
   customer: z.string(),
   date: z.string(),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
-  margin: z.number().min(0, "Margin must be positive"),
-  price: z.coerce.number(),
+  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+  margin: z.coerce.number().min(0, "Margin must be positive"),
   packaging: z.boolean(),
   delivery: z.boolean(),
   material: z.string(),
   printer: z.string(),
-  printTime: z.number().min(0, "Print time must be positive"),
-  removalTimeInMinutes: z.number().min(0, "Removal time must be positive"),
+  printTime: z.coerce.number().min(0, "Print time must be positive"),
+  removalTimeInMinutes: z.coerce
+    .number()
+    .min(0, "Removal time must be positive"),
   sandingDifficulty: z.string(),
   paintingDifficulty: z.string(),
   supportDifficulty: z.string(),
@@ -103,13 +104,19 @@ export const calculatorFormSchema = z.object({
   materials: z.array(materialSchema),
 
   country: z.string(),
-  electricityCost: z.number(),
-  printerWattage: z.number(),
-  machinePrice: z.number(),
-  machineDepreciationRate: z.number(),
+  electricityCost: z.coerce.number(),
+  printerWattage: z.coerce.number(),
+  machinePrice: z.coerce.number(),
+  machineLifeTime: z.coerce.number(),
   machinePurchaseDate: z.string(),
-  consumableCost: z.number(),
-  failureRate: z.number(),
-  hourlyLaborRate: z.number().min(0, "Hourly labor rate must be positive"),
+  usageFrequency: z.enum(["light", "regular", "heavy", "full"]),
+  maintenanceFrequency: z.enum(["light", "regular", "heavy", "full"]),
+  partsCost: z.coerce.number(),
+  partsLifeTime: z.coerce.number(),
+  consumableCost: z.coerce.number(),
+  failureRate: z.coerce.number().min(0, "Failure rate must be positive"),
+  hourlyLaborRate: z.coerce
+    .number()
+    .min(0, "Hourly labor rate must be positive"),
 });
 export type CalculatorFormValues = z.infer<typeof calculatorFormSchema>;

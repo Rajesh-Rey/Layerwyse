@@ -79,11 +79,26 @@ export function computeTotal(v: CalculatorFormValues): Breakdown {
 
   const fixedCosts: FixedCostsBreakdown = {
     support: supportLaborCost,
+    // not fixed cost? it's both since you spend electricity even if you don't print but also more when printing
     electricity: printerElectricalCost,
     modeling: modelingLaborCost,
     rent: rent,
     total: fixedCostsTotal,
   };
+
+  // printer operation costs
+
+  // parts costs
+  const partsCostPerH = v.partsCost * v.partsLifeTime;
+
+  // consumables per hour like feb
+  // consumables per print like gloves
+
+  // maintenance costs
+  // heavy freq -> every 10 prints
+  //  relevel clean vat etc
+  // how to account for utlization?
+  //
 
   // we need to show to the user that the more they print the less this will cost them
   const total = cogsTotal + fixedCostsTotal / v.quantity;

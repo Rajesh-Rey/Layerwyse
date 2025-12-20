@@ -102,15 +102,14 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       category: "",
       customer: "",
       date: new Date().toISOString().split("T")[0],
-      quantity: 1,
-      margin: 30,
-      price: 0 as any,
+      quantity: 1 as number | string,
+      margin: 30 as number | string,
       packaging: false,
       delivery: false,
       material: "standardResin",
       printer: "",
-      printTime: 0,
-      removalTimeInMinutes: 0,
+      printTime: "" as number | string,
+      removalTimeInMinutes: "" as number | string,
       sandingDifficulty: "none",
       paintingDifficulty: "none",
       supportDifficulty: "none",
@@ -120,25 +119,33 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
       uploadedFiles: [] as UploadedFileData[],
       extraMaterials: [] as ExtraMaterial[],
       materials: [
-        { material: "standardResin", costPerKg: defaultResinCost, weight: 0 },
+        {
+          material: "standardResin",
+          costPerKg: defaultResinCost as number | string,
+          weight: "" as number | string,
+        },
       ] as Material[],
 
       country: "kuwait",
       electricityCost: 0.014,
-      printerWattage: 100,
-      machinePrice: 500,
-      machineDepreciationRate: 0,
+      printerWattage: 100 as number | string,
+      machinePrice: 500 as number | string,
+      machineLifeTime: "" as number | string,
       machinePurchaseDate: "",
-      consumableCost: 0.25,
-      failureRate: 3,
-      hourlyLaborRate: 5,
+      usageFrequency: "regular" as "light" | "regular" | "heavy" | "full",
+      maintenanceFrequency: "regular" as "light" | "regular" | "heavy" | "full",
+      partsCost: "" as number | string,
+      partsLifeTime: "" as number | string,
+      consumableCost: 0.25 as number | string,
+      failureRate: 3 as number | string,
+      hourlyLaborRate: 5 as number | string,
     },
     listeners: {
       onChangeDebounceMs: 80,
       onChange: ({ formApi }) => {
         if (onChange) {
           const value = formApi.state.values;
-          onChange(value);
+          onChange(calculatorFormSchema.parse(value));
         }
       },
     },
@@ -377,11 +384,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         <Input
                           id={field.name}
                           name={field.name}
+                          type="number"
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(toNumOrZero(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -409,10 +415,9 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
+                          type="number"
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -490,10 +495,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                         </FieldLabel>
                                         <Input
                                           id={subField.name}
+                                          type="number"
                                           value={subField.state.value}
                                           onChange={(e) =>
                                             subField.handleChange(
-                                              parseFloat(e.target.value) || 0,
+                                              e.target
+                                                .value as unknown as number,
                                             )
                                           }
                                           placeholder="0.00"
@@ -512,9 +519,11 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                         <Input
                                           id={subField.name}
                                           value={subField.state.value}
+                                          type="number"
                                           onChange={(e) =>
                                             subField.handleChange(
-                                              parseInt(e.target.value) || 0,
+                                              e.target
+                                                .value as unknown as number,
                                             )
                                           }
                                           placeholder=""
@@ -552,8 +561,8 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           onClick={() =>
                             field.pushValue({
                               material: "",
-                              weight: 0,
-                              costPerKg: 0,
+                              weight: "" as unknown as number,
+                              costPerKg: "" as unknown as number,
                             })
                           }
                         >
@@ -810,10 +819,11 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                   </FieldLabel>
                                   <Input
                                     id={subField.name}
+                                    type="number"
                                     value={subField.state.value}
                                     onChange={(e) =>
                                       subField.handleChange(
-                                        parseFloat(e.target.value) || 0,
+                                        e.target.value as unknown as number,
                                       )
                                     }
                                     placeholder="0.00"
@@ -830,11 +840,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                                     <InfoTooltip content="Number of units used in this project" />
                                   </FieldLabel>
                                   <Input
+                                    type="number"
                                     id={subField.name}
                                     value={subField.state.value}
                                     onChange={(e) =>
                                       subField.handleChange(
-                                        parseInt(e.target.value) || 0,
+                                        e.target.value as unknown as number,
                                       )
                                     }
                                     placeholder="1"
@@ -866,7 +877,7 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                     onClick={() =>
                       field.pushValue({
                         name: "",
-                        unitCost: 0,
+                        unitCost: "" as unknown as number,
                         quantity: 1,
                       })
                     }
@@ -958,12 +969,15 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <InfoTooltip content="Your local electricity rate per kilowatt-hour for accurate energy cost calculations" />
                         </FieldLabel>
                         <Input
+                          type="number"
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
+                            field.handleChange(
+                              e.target.value as unknown as number,
+                            )
                           }
                           aria-invalid={isInvalid}
                         />
@@ -990,13 +1004,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <InfoTooltip content="Power consumption of your 3D printer in watts (check your printer specs)" />
                         </FieldLabel>
                         <Input
+                          type="number"
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -1022,45 +1035,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           <InfoTooltip content="Original purchase price of your 3D printer for depreciation calculations" />
                         </FieldLabel>
                         <Input
+                          type="number"
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
-                          aria-invalid={isInvalid}
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-
-                <form.Field
-                  name="machineDepreciationRate"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="flex items-center gap-1.5"
-                        >
-                          Machine Depreciation Rate (%)
-                          <InfoTooltip content="Annual depreciation percentage for your printer (typically 10-20% per year)" />
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -1108,6 +1088,179 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                 />
 
                 <form.Field
+                  name="machineLifeTime"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Machine Lifetime (years)
+                          <InfoTooltip content="Expected useful lifetime of your printer in years for depreciation calculations" />
+                        </FieldLabel>
+                        <Input
+                          type="number"
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <form.Field
+                  name="usageFrequency"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Usage Frequency
+                          <InfoTooltip content="How frequently you use this printer (affects wear and maintenance calculations)" />
+                        </FieldLabel>
+                        <Select
+                          value={field.state.value}
+                          onValueChange={(value) =>
+                            field.handleChange(
+                              value as "light" | "regular" | "heavy" | "full",
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="light">Light</SelectItem>
+                            <SelectItem value="regular">Regular</SelectItem>
+                            <SelectItem value="heavy">Heavy</SelectItem>
+                            <SelectItem value="full">Full</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <form.Field
+                  name="maintenanceFrequency"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Maintenance Frequency
+                          <InfoTooltip content="How often you perform maintenance on this printer" />
+                        </FieldLabel>
+                        <Select
+                          value={field.state.value}
+                          onValueChange={(value) =>
+                            field.handleChange(
+                              value as "light" | "regular" | "heavy" | "full",
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="light">Light</SelectItem>
+                            <SelectItem value="regular">Regular</SelectItem>
+                            <SelectItem value="heavy">Heavy</SelectItem>
+                            <SelectItem value="full">Full</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <form.Field
+                  name="partsCost"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Parts Cost ({currency})
+                          <InfoTooltip content="Total cost of replacement parts and components for your printer" />
+                        </FieldLabel>
+                        <Input
+                          type="number"
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <form.Field
+                  name="partsLifeTime"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="flex items-center gap-1.5"
+                        >
+                          Parts Lifetime (years)
+                          <InfoTooltip content="Expected lifetime of replacement parts in years" />
+                        </FieldLabel>
+                        <Input
+                          type="number"
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <form.Field
                   name="consumableCost"
                   children={(field) => {
                     const isInvalid =
@@ -1126,13 +1279,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           process.
                         </FieldDescription>
                         <Input
+                          type="number"
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -1162,13 +1314,12 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                           to fail?
                         </FieldDescription>
                         <Input
+                          type="number"
                           id={field.name}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
@@ -1201,11 +1352,10 @@ export function CalculatorForm({ className, onChange }: CalculatorFormProps) {
                         <Input
                           id={field.name}
                           name={field.name}
+                          type="number"
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(parseFloat(e.target.value))
-                          }
+                          onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                         />
                         {isInvalid && (
