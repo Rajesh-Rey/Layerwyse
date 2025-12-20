@@ -38,13 +38,6 @@ function UserMenu() {
         >
           Calculator
         </Link>
-        <Link href="/pricing" className="hover:text-accent text-sm font-medium">
-          Pricing
-        </Link>
-
-        <Button asChild className="rounded-full">
-          <Link href="/sign-up">Sign Up</Link>
-        </Button>
       </>
     );
   }
